@@ -5,8 +5,11 @@ from db_setup import get_connection
 from fastapi import FastAPI, HTTPException
 
 app = FastAPI()
+@app.get ("/")
+def home ():
+    return {"message": "API is running!"}
 
-"""
+""" 
 ADD ENDPOINTS FOR FASTAPI HERE
 Make sure to do the following:
 - Use the correct HTTP method (e.g get, post, put, delete)

@@ -161,3 +161,42 @@ def update_review(review_id: int, review: ReviewUpdate):
     con = get_connection()
     return update_review_db(con, review_id, review)
 
+@app.delete("/users/{user_id}")
+def delete_user(user_id: int):
+    con = get_connection()
+    return delete_user_db(con, user_id)
+
+@app.delete("/salons/{salon_id}")
+def delete_salon(salon_id: int):
+    con = get_connection()
+    return delete_salon_db(con, salon_id)
+
+@app.delete("/services/{service_id}")
+def delete_service(service_id: int):
+    con = get_connection()
+    return delete_service_db(con, service_id)
+
+@app.delete("/bookings/{booking_id}")
+def delete_booking(booking_id: int):
+    con = get_connection()
+    return delete_booking_db(con, booking_id)
+
+@app.delete("/payments/{payment_id}")
+def delete_payment(payment_id: int):
+    con = get_connection()
+    return delete_payment_db(con, payment_id)
+
+@app.delete("/reviews/{review_id}")
+def delete_review(review_id: int):
+    con = get_connection()
+    return delete_review_db(con, review_id)
+
+@app.patch("/users/{user_id}/email")
+def update_user_email(user_id: int, email: UpdateEmail):
+    con = get_connection()
+    return update_user_email_db(con, user_id, email)
+
+@app.patch("/bookings/{booking_id}/status")
+def update_booking_status(booking_id: int, status: UpdateStatus):
+    con = get_connection()
+    return update_booking_status_db(con, booking_id, status)

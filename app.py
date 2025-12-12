@@ -81,7 +81,7 @@ def get_payment(payment_id: int):
     return cur.fetchone()
 
 @app.post("/users")
-def create_user(user: usercreate):
+def create_user(user: Usercreate):
     con = get_connection()
     return {"user_id": add_user(con, user)}
 
@@ -130,3 +130,34 @@ def login_user(login: LoginCreate):
 def admin_create_salon(salon: SalonCreate):
     con = get_connection()
     return {"salon_id": add_salon(con, salon)}
+
+@app.put("/users/{user_id}")
+def update_user(user_id: int, user: UserUpdate):
+    con = get_connection()
+    return update_user_db(con, user_id, user)
+
+@app.put("/salons/{salon_id}")
+def update_salon(salon_id: int, salon: SalonUpdate):
+    con = get_connection()
+    return update_salon_db(con, salon_id, salon)
+
+@app.put("/services/{service_id}")
+def update_service(service_id: int, service: ServiceUpdate):
+    con = get_connection()
+    return update_service_db(con, service_id, service)
+
+@app.put("/bookings/{booking_id}")
+def update_booking(booking_id: int, booking: BookingUpdate):
+    con = get_connection()
+    return update_booking_db(con, booking_id, booking)
+
+@app.put("/payments/{payment_id}")
+def update_payment(payment_id: int, payment: PaymentUpdate):
+    con = get_connection()
+    return update_payment_db(con, payment_id, payment)
+
+@app.put("/reviews/{review_id}")
+def update_review(review_id: int, review: ReviewUpdate):
+    con = get_connection()
+    return update_review_db(con, review_id, review)
+

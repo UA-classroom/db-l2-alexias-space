@@ -5,37 +5,128 @@ from db_setup import get_connection
 from fastapi import FastAPI, HTTPException
 
 app = FastAPI()
+
 @app.get ("/")
 def home ():
     return {"message": "API is running!"}
 
-""" 
-ADD ENDPOINTS FOR FASTAPI HERE
-Make sure to do the following:
-- Use the correct HTTP method (e.g get, post, put, delete)
-- Use correct STATUS CODES, e.g 200, 400, 401 etc. when returning a result to the user
-- Use pydantic models whenever you receive user data and need to validate the structure and data types (VG)
-This means you need some error handling that determine what should be returned to the user
-Read more: https://www.geeksforgeeks.org/10-most-common-http-status-codes/
-- Use correct URL paths the resource, e.g some endpoints should be located at the exact same URL, 
-but will have different HTTP-verbs.
-"""
+@app.get("/users")
+def get_users():
+    con = get_connection()
+    cur = con.cursor()
+    cur.execute("SELECT * FROM users;")
+    return cur.fetchall()
 
+@app.get("/users/{user_id}")
+def get_user(user_id: int):
+    con = get_connection()
+    cur = con.cursor()
+    cur.execute("SELECT * FROM users WHERE user_id = %s;", (user_id,))
+    return cur.fetchone()
 
-# INSPIRATION FOR A LIST-ENDPOINT - Not necessary to use pydantic models, but we could to ascertain that we return the correct values
-# @app.get("/items/")
-# def read_items():
-#     con = get_connection()
-#     items = get_items(con)
-#     return {"items": items}
+@app.get("/salons")
+def get_salons():
+    con = get_connection()
+    cur = con.cursor()
+    cur.execute("SELECT * FROM salons;")
+    return cur.fetchall()
 
+@app.get("/salons/{salon_id}")
+def get_salon(salon_id: int):
+    con = get_connection()
+    cur = con.cursor()
+    cur.execute("SELECT * FROM salons WHERE salon_id = %s;", (salon_id,))
+    return cur.fetchone()
 
-# INSPIRATION FOR A POST-ENDPOINT, uses a pydantic model to validate
-# @app.post("/validation_items/")
-# def create_item_validation(item: ItemCreate):
-#     con = get_connection()
-#     item_id = add_item_validation(con, item)
-#     return {"item_id": item_id}
+@app.get("/services")
+def get_services():
+    con = get_connection()
+    cur = con.cursor()
+    cur.execute("SELECT * FROM services;")
+    return cur.fetchall()
 
+@app.get("/services/{service_id}")
+def get_service(service_id: int):
+    con = get_connection()
+    cur = con.cursor()
+    cur.execute("SELECT * FROM services WHERE service_id = %s;", (service_id,))
+    return cur.fetchone()
 
-# IMPLEMENT THE ACTUAL ENDPOINTS! Feel free to remove
+@app.get("/bookings")
+def get_bookings():
+    con = get_connection()
+    cur = con.cursor()
+    cur.execute("SELECT * FROM bookings;")
+    return cur.fetchall()
+
+@app.get("/bookings/{booking_id}")
+def get_booking(booking_id: int):
+    con = get_connection()
+    cur = con.cursor()
+    cur.execute("SELECT * FROM bookings WHERE booking_id = %s;", (booking_id,))
+    return cur.fetchone()
+
+@app.get("/payments")
+def get_payments():
+    con = get_connection()
+    cur = con.cursor()
+    cur.execute("SELECT * FROM payments;")
+    return cur.fetchall()
+
+@app.get("/payments/{payment_id}")
+def get_payment(payment_id: int):
+    con = get_connection()
+    cur = con.cursor()
+    cur.execute("SELECT * FROM payments WHERE payment_id = %s;", (payment_id,))
+    return cur.fetchone()
+
+@app.post("/users")
+def create_user(user: usercreate):
+    con = get_connection()
+    return {"user_id": add_user(con, user)}
+
+@app.post("/salons")
+def create_salon(salon: SalonCreate):
+    con = get_connection()
+    return {"salon_id": add_salon(con, salon)}
+
+@app.post("/services")
+def create_service(service: ServiceCreate):
+    con = get_connection()
+    return {"service_id": add_service(con, service)}
+
+@app.post("/bookings")
+def create_booking(booking: BookingCreate):
+    con = get_connection()
+    return {"booking_id": add_booking(con, booking)}
+
+@app.post("/payments")
+def create_payment(payment: PaymentCreate):
+    con = get_connection()
+    return {"payment_id": add_payment(con, payment)}
+
+@app.post("/reviews")
+def create_review(review: ReviewCreate):
+    con = get_connection()
+    return {"review_id": add_review(con, review)}
+
+@app.post("/salons/{salon_id}/services")
+def create_service_for_salon(salon_id: int, service: ServiceCreate):
+    con = get_connection()
+    service.salon_id = salon_id
+    return {"service_id": add_service(con, service)}
+
+@app.post("/bookings/{booking_id}/status")
+def create_booking_status(booking_id: int, status: BookingStatusCreate):
+    con = get_connection()
+    return update_booking_status(con, booking_id, status)
+
+@app.post("/login")
+def login_user(login: LoginCreate):
+    con = get_connection()
+    return login_user_db(con, login)
+
+@app.post("/admin/salons")
+def admin_create_salon(salon: SalonCreate):
+    con = get_connection()
+    return {"salon_id": add_salon(con, salon)}

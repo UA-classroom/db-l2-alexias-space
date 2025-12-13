@@ -441,3 +441,13 @@ def delete_payment_db(con, payment_id):
             if not result:
                 raise Exception(f"Payment with id {payment_id} not found")
             return {"message": f"Payment {payment_id} deleted successfully"}
+
+
+# ==================== REVIEWS ====================
+
+def get_all_reviews(con):
+    """Fetch all reviews"""
+    with con:
+        with con.cursor(cursor_factory=RealDictCursor) as cursor:
+            cursor.execute("SELECT * FROM reviews;")
+            return cursor.fetchall()

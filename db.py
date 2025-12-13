@@ -34,3 +34,39 @@ def add_user(con, user):
             )
             result = cursor.fetchone()
             return result["user_id"]
+        
+def update_user_db(con, user_id, user):
+    """Update user (PUT - all fields)"""
+    with con:
+        with con.cursor(cursor_factory=RealDictCursor) as cursor:
+            # Build UPDATE dynamically based on which fields exist
+            updates = []
+            values = []
+            
+            if user.first_name is not None:
+                updates.append("first_name = %s")
+                values.append(user.first_name)
+            if user.last_name is not None:
+                updates.append("last_name = %s")
+                values.append(user.last_name)
+            if user.email is not None:
+                updates.append("email = %s")
+                values.append(user.email)
+            if user.phone_number is not None:
+                updates.append("phone_number = %s")
+                values.append(user.phone_number)
+            if user.password_hash is not None:
+                updates.append("password_hash = %s")
+                values.append(user.password_hash)
+            
+            if not updates:
+                raise Exception("No fields to update")
+            
+            values.append(user_id)
+            query = f"UPDATE users SET {', '.join(updates)} WHERE user_id = %s RETURNING *;"
+            cursor.execute(query, values)
+            result = cursor.fetchone()
+            
+            if not result:
+                raise Exception(f"User with id {user_id} not found")
+            return result

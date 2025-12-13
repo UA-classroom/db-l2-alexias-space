@@ -69,4 +69,14 @@ def update_user_db(con, user_id, user):
             
             if not result:
                 raise Exception(f"User with id {user_id} not found")
-            return result
+            return result 
+        
+def delete_user_db(con, user_id):
+    """Delete user"""
+    with con:
+        with con.cursor(cursor_factory=RealDictCursor) as cursor:
+            cursor.execute("DELETE FROM users WHERE user_id = %s RETURNING user_id;", (user_id,))
+            result = cursor.fetchone()
+            if not result:
+                raise Exception(f"User with id {user_id} not found")
+            return {"message": f"User {user_id} deleted successfully"}

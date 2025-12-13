@@ -112,3 +112,19 @@ def get_salon_by_id(con, salon_id):
             if not salon:
                 raise Exception(f"Salon with id {salon_id} not found")
             return salon
+        
+def add_salon(con, salon):
+    """Create new salon"""
+    with con:
+        with con.cursor(cursor_factory=RealDictCursor) as cursor:
+            cursor.execute(
+                """
+                INSERT INTO salons (owner_id, name, adress, city, postal_code, phone_number, email, description)
+                VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
+                RETURNING salon_id;
+                """,
+                (salon.owner_id, salon.name, salon.adress, salon.city, 
+                 salon.postal_code, salon.phone_number, salon.email, salon.description)
+            )
+            result = cursor.fetchone()
+            return result["salon_id"]

@@ -128,3 +128,47 @@ def add_salon(con, salon):
             )
             result = cursor.fetchone()
             return result["salon_id"]
+        
+def update_salon_db(con, salon_id, salon):
+    """Update salon"""
+    with con:
+        with con.cursor(cursor_factory=RealDictCursor) as cursor:
+            updates = []
+            values = []
+            
+            if salon.owner_id is not None:
+                updates.append("owner_id = %s")
+                values.append(salon.owner_id)
+            if salon.name is not None:
+                updates.append("name = %s")
+                values.append(salon.name)
+            if salon.adress is not None:
+                updates.append("adress = %s")
+                values.append(salon.adress)
+            if salon.city is not None:
+                updates.append("city = %s")
+                values.append(salon.city)
+            if salon.postal_code is not None:
+                updates.append("postal_code = %s")
+                values.append(salon.postal_code)
+            if salon.phone_number is not None:
+                updates.append("phone_number = %s")
+                values.append(salon.phone_number)
+            if salon.email is not None:
+                updates.append("email = %s")
+                values.append(salon.email)
+            if salon.description is not None:
+                updates.append("description = %s")
+                values.append(salon.description)
+            
+            if not updates:
+                raise Exception("No fields to update")
+            
+            values.append(salon_id)
+            query = f"UPDATE salons SET {', '.join(updates)} WHERE salon_id = %s RETURNING *;"
+            cursor.execute(query, values)
+            result = cursor.fetchone()
+            
+            if not result:
+                raise Exception(f"Salon with id {salon_id} not found")
+            return result

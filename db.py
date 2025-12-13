@@ -252,3 +252,14 @@ def update_service_db(con, service_id, service):
             if not result:
                 raise Exception(f"Service with id {service_id} not found")
             return result
+        
+def delete_service_db(con, service_id):
+    """Delete service"""
+    with con:
+        with con.cursor(cursor_factory=RealDictCursor) as cursor:
+            cursor.execute("DELETE FROM services WHERE service_id = %s RETURNING service_id;", (service_id,))
+            result = cursor.fetchone()
+            if not result:
+                raise Exception(f"Service with id {service_id} not found")
+            return {"message": f"Service {service_id} deleted successfully"}
+

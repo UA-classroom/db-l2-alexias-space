@@ -263,3 +263,11 @@ def delete_service_db(con, service_id):
                 raise Exception(f"Service with id {service_id} not found")
             return {"message": f"Service {service_id} deleted successfully"}
 
+# ==================== BOOKINGS ====================
+
+def get_all_bookings(con):
+    """Fetch all bookings"""
+    with con:
+        with con.cursor(cursor_factory=RealDictCursor) as cursor:
+            cursor.execute("SELECT * FROM bookings;")
+            return cursor.fetchall()

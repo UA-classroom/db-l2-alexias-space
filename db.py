@@ -431,3 +431,13 @@ def update_payment_db(con, payment_id, payment):
             if not result:
                 raise Exception(f"Payment with id {payment_id} not found")
             return result 
+        
+def delete_payment_db(con, payment_id):
+    """Delete payment"""
+    with con:
+        with con.cursor(cursor_factory=RealDictCursor) as cursor:
+            cursor.execute("DELETE FROM payments WHERE payment_id = %s RETURNING payment_id;", (payment_id,))
+            result = cursor.fetchone()
+            if not result:
+                raise Exception(f"Payment with id {payment_id} not found")
+            return {"message": f"Payment {payment_id} deleted successfully"}

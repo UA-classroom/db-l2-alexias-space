@@ -476,3 +476,46 @@ def add_review(con, review):
             )
             result = cursor.fetchone()
             return result["review_id"]
+        
+
+def update_review_db(con, review_id, review):
+    """Update review"""
+    with con:
+        with con.cursor(cursor_factory=RealDictCursor) as cursor:
+            updates = []
+            values = []
+            
+            if review.salon_id is not None:
+                updates.append("salon_id = %s")
+                values.append(review.salon_id)
+            if review.user_id is not None:
+                updates.append("user_id = %s")
+                values.append(review.user_id)
+            if review.rating is not None:
+                updates.append("rating = %s")
+                values.append(review.rating)
+            if review.comment is not None:
+                updates.append("comment = %s")
+                values.append(review.comment)
+            
+            if not updates:
+                raise Exception("No fields to update")
+            
+            values.append(review_id)
+            query = f"UPDATE reviews SET {', '.join(updates)} WHERE review_id = %s RETURNING *;"
+            cursor.execute(query, values)
+            result = cursor.fetchone()
+            
+            if not result:
+                raise Exception(f"Review with id {review_id} not found")
+            return result
+
+def delete_review_db(con, review_id):
+    """Delete review"""
+    with con:
+        with con.cursor(cursor_factory=RealDictCursor) as cursor:
+            cursor.execute("DELETE FROM reviews WHERE review_id = %s RETURNING review_id;", (review_id,))
+            result = cursor.fetchone()
+            if not result:
+                raise Exception(f"Review with id {review_id} not found")
+            return {"message": f"Review {review_id} deleted successfully"}

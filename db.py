@@ -368,3 +368,14 @@ def get_all_payments(con):
         with con.cursor(cursor_factory=RealDictCursor) as cursor:
             cursor.execute("SELECT * FROM payments;")
             return cursor.fetchall() 
+        
+
+def get_payment_by_id(con, payment_id):
+    """Fetch a specific payment"""
+    with con:
+        with con.cursor(cursor_factory=RealDictCursor) as cursor:
+            cursor.execute("SELECT * FROM payments WHERE payment_id = %s;", (payment_id,))
+            payment = cursor.fetchone()
+            if not payment:
+                raise Exception(f"Payment with id {payment_id} not found")
+            return payment

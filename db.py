@@ -202,3 +202,18 @@ def get_service_by_id(con, service_id):
             if not service:
                 raise Exception(f"Service with id {service_id} not found")
             return service
+        
+def add_service(con, service):
+    """Create new service"""
+    with con:
+        with con.cursor(cursor_factory=RealDictCursor) as cursor:
+            cursor.execute(
+                """
+                INSERT INTO services (salon_id, name, description, price, is_active)
+                VALUES (%s, %s, %s, %s, %s)
+                RETURNING service_id;
+                """,
+                (service.salon_id, service.name, service.description, service.price, service.is_active)
+            )
+            result = cursor.fetchone()
+            return result["service_id"]

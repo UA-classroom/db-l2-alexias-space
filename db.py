@@ -102,3 +102,13 @@ def get_all_salons(con):
         with con.cursor(cursor_factory=RealDictCursor) as cursor:
             cursor.execute("SELECT * FROM salons;")
             return cursor.fetchall()
+        
+def get_salon_by_id(con, salon_id):
+    """Fetch a specific salon"""
+    with con:
+        with con.cursor(cursor_factory=RealDictCursor) as cursor:
+            cursor.execute("SELECT * FROM salons WHERE salon_id = %s;", (salon_id,))
+            salon = cursor.fetchone()
+            if not salon:
+                raise Exception(f"Salon with id {salon_id} not found")
+            return salon

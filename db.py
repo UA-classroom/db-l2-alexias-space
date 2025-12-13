@@ -19,3 +19,18 @@ def get_user_by_id(con, user_id):
             if not user:
                 raise Exception(f"User with id {user_id} not found")
             return user
+        
+def add_user(con, user):
+    """Create new user"""
+    with con:
+        with con.cursor(cursor_factory=RealDictCursor) as cursor:
+            cursor.execute(
+                """
+                INSERT INTO users (first_name, last_name, email, phone_number, password_hash)
+                VALUES (%s, %s, %s, %s, %s)
+                RETURNING user_id;
+                """,
+                (user.first_name, user.last_name, user.email, user.phone_number, user.password_hash)
+            )
+            result = cursor.fetchone()
+            return result["user_id"]

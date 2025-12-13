@@ -217,3 +217,38 @@ def add_service(con, service):
             )
             result = cursor.fetchone()
             return result["service_id"]
+        
+def update_service_db(con, service_id, service):
+    """Update service"""
+    with con:
+        with con.cursor(cursor_factory=RealDictCursor) as cursor:
+            updates = []
+            values = []
+            
+            if service.salon_id is not None:
+                updates.append("salon_id = %s")
+                values.append(service.salon_id)
+            if service.name is not None:
+                updates.append("name = %s")
+                values.append(service.name)
+            if service.description is not None:
+                updates.append("description = %s")
+                values.append(service.description)
+            if service.price is not None:
+                updates.append("price = %s")
+                values.append(service.price)
+            if service.is_active is not None:
+                updates.append("is_active = %s")
+                values.append(service.is_active)
+            
+            if not updates:
+                raise Exception("No fields to update")
+            
+            values.append(service_id)
+            query = f"UPDATE services SET {', '.join(updates)} WHERE service_id = %s RETURNING *;"
+            cursor.execute(query, values)
+            result = cursor.fetchone()
+            
+            if not result:
+                raise Exception(f"Service with id {service_id} not found")
+            return result

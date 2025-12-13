@@ -451,3 +451,13 @@ def get_all_reviews(con):
         with con.cursor(cursor_factory=RealDictCursor) as cursor:
             cursor.execute("SELECT * FROM reviews;")
             return cursor.fetchall()
+
+def get_review_by_id(con, review_id):
+    """Fetch a specific review"""
+    with con:
+        with con.cursor(cursor_factory=RealDictCursor) as cursor:
+            cursor.execute("SELECT * FROM reviews WHERE review_id = %s;", (review_id,))
+            review = cursor.fetchone()
+            if not review:
+                raise Exception(f"Review with id {review_id} not found")
+            return review

@@ -93,3 +93,12 @@ def update_user_email_db(con, user_id, email):
             if not result:
                 raise Exception(f"User with id {user_id} not found")
             return result
+        
+# ==================== SALONS ====================
+
+def get_all_salons(con):
+    """Fetch all salons"""
+    with con:
+        with con.cursor(cursor_factory=RealDictCursor) as cursor:
+            cursor.execute("SELECT * FROM salons;")
+            return cursor.fetchall()

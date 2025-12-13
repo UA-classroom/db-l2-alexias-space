@@ -359,3 +359,12 @@ def update_booking_status_db(con, booking_id, status):
             if not result:
                 raise Exception(f"Booking with id {booking_id} not found")
             return result
+        
+# ==================== PAYMENTS ====================
+
+def get_all_payments(con):
+    """Fetch all payments"""
+    with con:
+        with con.cursor(cursor_factory=RealDictCursor) as cursor:
+            cursor.execute("SELECT * FROM payments;")
+            return cursor.fetchall() 

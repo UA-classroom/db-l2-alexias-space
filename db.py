@@ -183,3 +183,12 @@ def delete_salon_db(con, salon_id):
             if not result:
                 raise Exception(f"Salon with id {salon_id} not found")
             return {"message": f"Salon {salon_id} deleted successfully"}
+
+# ==================== SERVICES ====================
+
+def get_all_services(con):
+    """Fetch all services"""
+    with con:
+        with con.cursor(cursor_factory=RealDictCursor) as cursor:
+            cursor.execute("SELECT * FROM services;")
+            return cursor.fetchall()

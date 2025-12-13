@@ -519,3 +519,22 @@ def delete_review_db(con, review_id):
             if not result:
                 raise Exception(f"Review with id {review_id} not found")
             return {"message": f"Review {review_id} deleted successfully"}
+        
+
+# ==================== SPECIAL FUNCTIONS ====================
+# Validate user credentials against database.
+#Returns user_id if email and password match, raises exception if invalid.
+
+
+def login_user_db(con, login):
+    """Login function (validate email and password)"""
+    with con:
+        with con.cursor(cursor_factory=RealDictCursor) as cursor:
+            cursor.execute(
+                "SELECT * FROM users WHERE email = %s AND password_hash = %s;",
+                (login.email, login.password_hash)
+            )
+            user = cursor.fetchone()
+            if not user:
+                raise Exception("Invalid email or password")
+            return {"message": "Login successful", "user_id": user["user_id"]}

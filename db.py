@@ -271,3 +271,13 @@ def get_all_bookings(con):
         with con.cursor(cursor_factory=RealDictCursor) as cursor:
             cursor.execute("SELECT * FROM bookings;")
             return cursor.fetchall()
+        
+def get_booking_by_id(con, booking_id):
+    """Fetch a specific booking"""
+    with con:
+        with con.cursor(cursor_factory=RealDictCursor) as cursor:
+            cursor.execute("SELECT * FROM bookings WHERE booking_id = %s;", (booking_id,))
+            booking = cursor.fetchone()
+            if not booking:
+                raise Exception(f"Booking with id {booking_id} not found")
+            return booking

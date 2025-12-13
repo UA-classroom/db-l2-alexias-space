@@ -192,3 +192,13 @@ def get_all_services(con):
         with con.cursor(cursor_factory=RealDictCursor) as cursor:
             cursor.execute("SELECT * FROM services;")
             return cursor.fetchall()
+        
+def get_service_by_id(con, service_id):
+    """Fetch a specific service"""
+    with con:
+        with con.cursor(cursor_factory=RealDictCursor) as cursor:
+            cursor.execute("SELECT * FROM services WHERE service_id = %s;", (service_id,))
+            service = cursor.fetchone()
+            if not service:
+                raise Exception(f"Service with id {service_id} not found")
+            return service

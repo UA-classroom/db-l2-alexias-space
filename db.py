@@ -281,3 +281,19 @@ def get_booking_by_id(con, booking_id):
             if not booking:
                 raise Exception(f"Booking with id {booking_id} not found")
             return booking
+        
+def add_booking(con, booking):
+    """Create new booking"""
+    with con:
+        with con.cursor(cursor_factory=RealDictCursor) as cursor:
+            cursor.execute(
+                """
+                INSERT INTO bookings (user_id, salon_id, service_id, start_time, end_time, status)
+                VALUES (%s, %s, %s, %s, %s, %s)
+                RETURNING booking_id;
+                """,
+                (booking.user_id, booking.salon_id, booking.service_id, 
+                 booking.start_time, booking.end_time, booking.status)
+            )
+            result = cursor.fetchone()
+            return result["booking_id"]

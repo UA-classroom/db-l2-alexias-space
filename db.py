@@ -335,3 +335,13 @@ def update_booking_db(con, booking_id, booking):
             if not result:
                 raise Exception(f"Booking with id {booking_id} not found")
             return result
+        
+def delete_booking_db(con, booking_id):
+    """Delete booking"""
+    with con:
+        with con.cursor(cursor_factory=RealDictCursor) as cursor:
+            cursor.execute("DELETE FROM bookings WHERE booking_id = %s RETURNING booking_id;", (booking_id,))
+            result = cursor.fetchone()
+            if not result:
+                raise Exception(f"Booking with id {booking_id} not found")
+            return {"message": f"Booking {booking_id} deleted successfully"}

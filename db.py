@@ -396,3 +396,38 @@ def add_payment(con, payment):
             )
             result = cursor.fetchone()
             return result["payment_id"]
+        
+def update_payment_db(con, payment_id, payment):
+    """Update payment"""
+    with con:
+        with con.cursor(cursor_factory=RealDictCursor) as cursor:
+            updates = []
+            values = []
+            
+            if payment.booking_id is not None:
+                updates.append("booking_id = %s")
+                values.append(payment.booking_id)
+            if payment.user_id is not None:
+                updates.append("user_id = %s")
+                values.append(payment.user_id)
+            if payment.amount is not None:
+                updates.append("amount = %s")
+                values.append(payment.amount)
+            if payment.payment_method is not None:
+                updates.append("payment_method = %s")
+                values.append(payment.payment_method)
+            if payment.transaction_status is not None:
+                updates.append("transaction_status = %s")
+                values.append(payment.transaction_status)
+            
+            if not updates:
+                raise Exception("No fields to update")
+            
+            values.append(payment_id)
+            query = f"UPDATE payments SET {', '.join(updates)} WHERE payment_id = %s RETURNING *;"
+            cursor.execute(query, values)
+            result = cursor.fetchone()
+            
+            if not result:
+                raise Exception(f"Payment with id {payment_id} not found")
+            return result 

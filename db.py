@@ -461,3 +461,18 @@ def get_review_by_id(con, review_id):
             if not review:
                 raise Exception(f"Review with id {review_id} not found")
             return review
+        
+def add_review(con, review):
+    """Create new review"""
+    with con:
+        with con.cursor(cursor_factory=RealDictCursor) as cursor:
+            cursor.execute(
+                """
+                INSERT INTO reviews (salon_id, user_id, rating, comment)
+                VALUES (%s, %s, %s, %s)
+                RETURNING review_id;
+                """,
+                (review.salon_id, review.user_id, review.rating, review.comment)
+            )
+            result = cursor.fetchone()
+            return result["review_id"]

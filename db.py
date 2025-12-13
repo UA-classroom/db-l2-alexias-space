@@ -80,3 +80,16 @@ def delete_user_db(con, user_id):
             if not result:
                 raise Exception(f"User with id {user_id} not found")
             return {"message": f"User {user_id} deleted successfully"}
+        
+def update_user_email_db(con, user_id, email):
+    """Update only email (PATCH)"""
+    with con:
+        with con.cursor(cursor_factory=RealDictCursor) as cursor:
+            cursor.execute(
+                "UPDATE users SET email = %s WHERE user_id = %s RETURNING *;",
+                (email.email, user_id)
+            )
+            result = cursor.fetchone()
+            if not result:
+                raise Exception(f"User with id {user_id} not found")
+            return result

@@ -297,3 +297,41 @@ def add_booking(con, booking):
             )
             result = cursor.fetchone()
             return result["booking_id"]
+        
+def update_booking_db(con, booking_id, booking):
+    """Update booking"""
+    with con:
+        with con.cursor(cursor_factory=RealDictCursor) as cursor:
+            updates = []
+            values = []
+            
+            if booking.user_id is not None:
+                updates.append("user_id = %s")
+                values.append(booking.user_id)
+            if booking.salon_id is not None:
+                updates.append("salon_id = %s")
+                values.append(booking.salon_id)
+            if booking.service_id is not None:
+                updates.append("service_id = %s")
+                values.append(booking.service_id)
+            if booking.start_time is not None:
+                updates.append("start_time = %s")
+                values.append(booking.start_time)
+            if booking.end_time is not None:
+                updates.append("end_time = %s")
+                values.append(booking.end_time)
+            if booking.status is not None:
+                updates.append("status = %s")
+                values.append(booking.status)
+            
+            if not updates:
+                raise Exception("No fields to update")
+            
+            values.append(booking_id)
+            query = f"UPDATE bookings SET {', '.join(updates)} WHERE booking_id = %s RETURNING *;"
+            cursor.execute(query, values)
+            result = cursor.fetchone()
+            
+            if not result:
+                raise Exception(f"Booking with id {booking_id} not found")
+            return result

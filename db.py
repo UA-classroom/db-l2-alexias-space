@@ -172,3 +172,14 @@ def update_salon_db(con, salon_id, salon):
             if not result:
                 raise Exception(f"Salon with id {salon_id} not found")
             return result
+        
+
+def delete_salon_db(con, salon_id):
+    """Delete salon"""
+    with con:
+        with con.cursor(cursor_factory=RealDictCursor) as cursor:
+            cursor.execute("DELETE FROM salons WHERE salon_id = %s RETURNING salon_id;", (salon_id,))
+            result = cursor.fetchone()
+            if not result:
+                raise Exception(f"Salon with id {salon_id} not found")
+            return {"message": f"Salon {salon_id} deleted successfully"}

@@ -379,3 +379,20 @@ def get_payment_by_id(con, payment_id):
             if not payment:
                 raise Exception(f"Payment with id {payment_id} not found")
             return payment
+        
+
+def add_payment(con, payment):
+    """Create new payment"""
+    with con:
+        with con.cursor(cursor_factory=RealDictCursor) as cursor:
+            cursor.execute(
+                """
+                INSERT INTO payments (booking_id, user_id, amount, payment_method, transaction_status)
+                VALUES (%s, %s, %s, %s, %s)
+                RETURNING payment_id;
+                """,
+                (payment.booking_id, payment.user_id, payment.amount, 
+                 payment.payment_method, payment.transaction_status)
+            )
+            result = cursor.fetchone()
+            return result["payment_id"]

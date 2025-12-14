@@ -1,4 +1,0 @@
-FastAPI = backend-ramverk
-psycopg2 = python-modul som gör att backend kan prata med PostgreSQL där jag skapade datatabellerna 
-SQL-tabellerna jag byggde = grunden till databasen
-uvicorn = servern som kör min backend

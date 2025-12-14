@@ -12,14 +12,14 @@ import db
 
 app = FastAPI()
 
-# ==================== HOME ====================
-
+#HOME 
+   
 @app.get("/")
 def home():
     return {"message": "Booking System API is running!"}
 
 
-# ==================== USERS ====================
+# USERS
 
 @app.get("/users", response_model=list[User])
 def get_users():
@@ -68,7 +68,7 @@ def delete_user(user_id: int):
         raise HTTPException(status_code=404, detail=str(e))
 
 
-# ==================== SALONS ====================
+#SALONS 
 
 @app.get("/salons", response_model=list[Salon])
 def get_salons():
@@ -117,7 +117,7 @@ def delete_salon(salon_id: int):
         raise HTTPException(status_code=404, detail=str(e))
 
 
-# ==================== SERVICES ====================
+#SERVICES
 
 @app.get("/services", response_model=list[Service])
 def get_services():
@@ -177,7 +177,7 @@ def create_service_for_salon(salon_id: int, service: ServiceCreate):
         raise HTTPException(status_code=400, detail=str(e))
 
 
-# ==================== BOOKINGS ====================
+#BOOKINGS
 
 @app.get("/bookings", response_model=list[Booking])
 def get_bookings():
@@ -226,7 +226,7 @@ def delete_booking(booking_id: int):
         raise HTTPException(status_code=404, detail=str(e))
 
 
-# ==================== PAYMENTS ====================
+#PAYMENTS
 
 @app.get("/payments", response_model=list[Payment])
 def get_payments():
@@ -275,7 +275,7 @@ def delete_payment(payment_id: int):
         raise HTTPException(status_code=404, detail=str(e))
 
 
-# ==================== REVIEWS ====================
+#REVIEWS
 
 @app.get("/reviews", response_model=list[Review])
 def get_reviews():
@@ -324,7 +324,7 @@ def delete_review(review_id: int):
         raise HTTPException(status_code=404, detail=str(e))
 
 
-# ==================== PATCH ENDPOINTS (Partial updates) ====================
+#PATCH ENDPOINTS (Partial updates)
 
 from pydantic import BaseModel
 
@@ -353,7 +353,7 @@ def update_booking_status(booking_id: int, status: UpdateStatus):
         raise HTTPException(status_code=404, detail=str(e))
 
 
-# ==================== SPECIAL ENDPOINTS ====================
+#SPECIAL ENDPOINTS
 
 class LoginCreate(BaseModel):
     email: str

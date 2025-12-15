@@ -10,6 +10,7 @@ PASSWORD = os.getenv("PASSWORD")
 
 
 def get_connection():
+
     """
     Function that returns a single connection
     In reality, we might use a connection pool, since
@@ -27,8 +28,11 @@ def get_connection():
 
 def create_tables():
     
+    connection = get_connection()
+    cur = connection.cursor()
+    
     #Users table 
-    cursor.execute("""
+    cur.execute("""
         CREATE TABLE IF NOT EXISTS users (
             user_id SERIAL PRIMARY KEY, 
             first_name VARCHAR(100) NOT NULL,
@@ -41,7 +45,7 @@ def create_tables():
     """)
     
     # salons table
-    cursor.execute("""
+    cur.execute("""
         CREATE TABLE IF NOT EXISTS salons (
             salon_id SERIAL PRIMARY KEY, 
             owner_id INTEGER NOT NULL REFERENCES users(user_id),
@@ -57,7 +61,7 @@ def create_tables():
     """)
     
     # services table
-    cursor.execute("""
+    cur.execute("""
         CREATE TABLE IF NOT EXISTS services (
             service_id SERIAL PRIMARY KEY,
             salon_id INTEGER REFERENCES salons(salon_id) NOT NULL,
@@ -70,7 +74,7 @@ def create_tables():
     """)
     
     #bookings table
-    cursor.execute("""
+    cur.execute("""
         CREATE TABLE IF NOT EXISTS bookings (
             booking_id SERIAL PRIMARY KEY,
             user_id INTEGER REFERENCES users(user_id) NOT NULL,
@@ -83,7 +87,7 @@ def create_tables():
     """)
     
     #payments table
-    cursor.execute("""
+    cur.execute("""
         CREATE TABLE IF NOT EXISTS payments (
             payment_id SERIAL PRIMARY KEY,
             booking_id INTEGER REFERENCES bookings(booking_id) NOT NULL,
@@ -96,7 +100,7 @@ def create_tables():
     """)
     
     # Rewiew table 
-    cursor.execute("""
+    cur.execute("""
         CREATE TABLE IF NOT EXISTS reviews (
             review_id SERIAL PRIMARY KEY,
             salon_id INTEGER REFERENCES salons(salon_id) NOT NULL, 
@@ -109,21 +113,9 @@ def create_tables():
     
     
     connection.commit()
-    cursor.close()
+    cur.close()
     connection.close()
 
-
-
-
-
-
-
-
-
-
-
-
 if __name__ == "__main__":
-    # Only reason to execute this file would be to create new tables, meaning it serves a migration file
     create_tables()
     print("Tables created successfully.")

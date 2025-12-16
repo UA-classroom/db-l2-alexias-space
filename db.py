@@ -1,7 +1,7 @@
 import psycopg2
 from psycopg2.extras import RealDictCursor
 
-# ==================== USERS ====================
+# USERS 
 
 def get_all_users(con):
     """Fetch all users"""
@@ -94,97 +94,97 @@ def update_user_email_db(con, user_id, email):
                 raise Exception(f"User with id {user_id} not found")
             return result
         
-# ==================== SALONS ====================
+# Busniess
 
-def get_all_salons(con):
-    """Fetch all salons"""
+def get_all_Busniesses(con):
+    """Fetch all Busniesses"""
     with con:
         with con.cursor(cursor_factory=RealDictCursor) as cursor:
-            cursor.execute("SELECT * FROM salons;")
+            cursor.execute("SELECT * FROM Busniesses;")
             return cursor.fetchall()
         
-def get_salon_by_id(con, salon_id):
-    """Fetch a specific salon"""
+def get_Busniess_by_id(con, Busniess_id):
+    """Fetch a specific Busniess"""
     with con:
         with con.cursor(cursor_factory=RealDictCursor) as cursor:
-            cursor.execute("SELECT * FROM salons WHERE salon_id = %s;", (salon_id,))
-            salon = cursor.fetchone()
-            if not salon:
-                raise Exception(f"Salon with id {salon_id} not found")
-            return salon
+            cursor.execute("SELECT * FROM Busniesses WHERE Busniess_id = %s;", (Busniess_id,))
+            Busniess = cursor.fetchone()
+            if not Busniess:
+                raise Exception(f"Busniess with id {Busniess_id} not found")
+            return Busniess
         
-def add_salon(con, salon):
-    """Create new salon"""
+def add_Busniess(con, Busniess):
+    """Create new Busniess"""
     with con:
         with con.cursor(cursor_factory=RealDictCursor) as cursor:
             cursor.execute(
                 """
-                INSERT INTO salons (owner_id, name, adress, city, postal_code, phone_number, email, description)
+                INSERT INTO Busniesses (owner_id, name, adress, city, postal_code, phone_number, email, description)
                 VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
-                RETURNING salon_id;
+                RETURNING Busniess_id;
                 """,
-                (salon.owner_id, salon.name, salon.adress, salon.city, 
-                 salon.postal_code, salon.phone_number, salon.email, salon.description)
+                (Busniess.owner_id, Busniess.name, Busniess.adress, Busniess.city, 
+                 Busniess.postal_code, Busniess.phone_number, Busniess.email, Busniess.description)
             )
             result = cursor.fetchone()
-            return result["salon_id"]
+            return result["Busniess_id"]
         
-def update_salon_db(con, salon_id, salon):
-    """Update salon"""
+def update_Busniess_db(con, Busniess_id, Busniess):
+    """Update Busniess"""
     with con:
         with con.cursor(cursor_factory=RealDictCursor) as cursor:
             updates = []
             values = []
             
-            if salon.owner_id is not None:
+            if Busniess.owner_id is not None:
                 updates.append("owner_id = %s")
-                values.append(salon.owner_id)
-            if salon.name is not None:
+                values.append(Busniess.owner_id)
+            if Busniess.name is not None:
                 updates.append("name = %s")
-                values.append(salon.name)
-            if salon.adress is not None:
+                values.append(Busniess.name)
+            if Busniess.adress is not None:
                 updates.append("adress = %s")
-                values.append(salon.adress)
-            if salon.city is not None:
+                values.append(Busniess.adress)
+            if Busniess.city is not None:
                 updates.append("city = %s")
-                values.append(salon.city)
-            if salon.postal_code is not None:
+                values.append(Busniess.city)
+            if Busniess.postal_code is not None:
                 updates.append("postal_code = %s")
-                values.append(salon.postal_code)
-            if salon.phone_number is not None:
+                values.append(Busniess.postal_code)
+            if Busniess.phone_number is not None:
                 updates.append("phone_number = %s")
-                values.append(salon.phone_number)
-            if salon.email is not None:
+                values.append(Busniess.phone_number)
+            if Busniess.email is not None:
                 updates.append("email = %s")
-                values.append(salon.email)
-            if salon.description is not None:
+                values.append(Busniess.email)
+            if Busniess.description is not None:
                 updates.append("description = %s")
-                values.append(salon.description)
+                values.append(Busniess.description)
             
             if not updates:
                 raise Exception("No fields to update")
             
-            values.append(salon_id)
-            query = f"UPDATE salons SET {', '.join(updates)} WHERE salon_id = %s RETURNING *;"
+            values.append(Busniess_id)
+            query = f"UPDATE Busniesses SET {', '.join(updates)} WHERE Busniess_id = %s RETURNING *;"
             cursor.execute(query, values)
             result = cursor.fetchone()
             
             if not result:
-                raise Exception(f"Salon with id {salon_id} not found")
+                raise Exception(f"Busniess with id {Busniess_id} not found")
             return result
         
 
-def delete_salon_db(con, salon_id):
-    """Delete salon"""
+def delete_Busniess_db(con, Busniess_id):
+    """Delete Busniess"""
     with con:
         with con.cursor(cursor_factory=RealDictCursor) as cursor:
-            cursor.execute("DELETE FROM salons WHERE salon_id = %s RETURNING salon_id;", (salon_id,))
+            cursor.execute("DELETE FROM Busniesses WHERE Busniess_id = %s RETURNING Busniess_id;", (Busniess_id,))
             result = cursor.fetchone()
             if not result:
-                raise Exception(f"Salon with id {salon_id} not found")
-            return {"message": f"Salon {salon_id} deleted successfully"}
+                raise Exception(f"Busniess with id {Busniess_id} not found")
+            return {"message": f"Busniess {Busniess_id} deleted successfully"}
 
-# ==================== SERVICES ====================
+#SERVICES 
 
 def get_all_services(con):
     """Fetch all services"""
@@ -209,11 +209,11 @@ def add_service(con, service):
         with con.cursor(cursor_factory=RealDictCursor) as cursor:
             cursor.execute(
                 """
-                INSERT INTO services (salon_id, name, description, price, is_active)
+                INSERT INTO services (Busniess_id, name, description, price, is_active)
                 VALUES (%s, %s, %s, %s, %s)
                 RETURNING service_id;
                 """,
-                (service.salon_id, service.name, service.description, service.price, service.is_active)
+                (service.Busniess_id, service.name, service.description, service.price, service.is_active)
             )
             result = cursor.fetchone()
             return result["service_id"]
@@ -225,9 +225,9 @@ def update_service_db(con, service_id, service):
             updates = []
             values = []
             
-            if service.salon_id is not None:
-                updates.append("salon_id = %s")
-                values.append(service.salon_id)
+            if service.Busniess_id is not None:
+                updates.append("Busniess_id = %s")
+                values.append(service.Busniess_id)
             if service.name is not None:
                 updates.append("name = %s")
                 values.append(service.name)
@@ -263,7 +263,7 @@ def delete_service_db(con, service_id):
                 raise Exception(f"Service with id {service_id} not found")
             return {"message": f"Service {service_id} deleted successfully"}
 
-# ==================== BOOKINGS ====================
+#BOOKINGS 
 
 def get_all_bookings(con):
     """Fetch all bookings"""
@@ -288,11 +288,11 @@ def add_booking(con, booking):
         with con.cursor(cursor_factory=RealDictCursor) as cursor:
             cursor.execute(
                 """
-                INSERT INTO bookings (user_id, salon_id, service_id, start_time, end_time, status)
+                INSERT INTO bookings (user_id, Busniess_id, service_id, start_time, end_time, status)
                 VALUES (%s, %s, %s, %s, %s, %s)
                 RETURNING booking_id;
                 """,
-                (booking.user_id, booking.salon_id, booking.service_id, 
+                (booking.user_id, booking.Busniess_id, booking.service_id, 
                  booking.start_time, booking.end_time, booking.status)
             )
             result = cursor.fetchone()
@@ -308,9 +308,9 @@ def update_booking_db(con, booking_id, booking):
             if booking.user_id is not None:
                 updates.append("user_id = %s")
                 values.append(booking.user_id)
-            if booking.salon_id is not None:
-                updates.append("salon_id = %s")
-                values.append(booking.salon_id)
+            if booking.Busniess_id is not None:
+                updates.append("Busniess_id = %s")
+                values.append(booking.Busniess_id)
             if booking.service_id is not None:
                 updates.append("service_id = %s")
                 values.append(booking.service_id)
@@ -360,7 +360,7 @@ def update_booking_status_db(con, booking_id, status):
                 raise Exception(f"Booking with id {booking_id} not found")
             return result
         
-# ==================== PAYMENTS ====================
+# PAYMENTS
 
 def get_all_payments(con):
     """Fetch all payments"""
@@ -443,7 +443,7 @@ def delete_payment_db(con, payment_id):
             return {"message": f"Payment {payment_id} deleted successfully"}
 
 
-# ==================== REVIEWS ====================
+#REVIEWS
 
 def get_all_reviews(con):
     """Fetch all reviews"""
@@ -468,11 +468,11 @@ def add_review(con, review):
         with con.cursor(cursor_factory=RealDictCursor) as cursor:
             cursor.execute(
                 """
-                INSERT INTO reviews (salon_id, user_id, rating, comment)
+                INSERT INTO reviews (Busniess_id, user_id, rating, comment)
                 VALUES (%s, %s, %s, %s)
                 RETURNING review_id;
                 """,
-                (review.salon_id, review.user_id, review.rating, review.comment)
+                (review.Busniess_id, review.user_id, review.rating, review.comment)
             )
             result = cursor.fetchone()
             return result["review_id"]
@@ -485,9 +485,9 @@ def update_review_db(con, review_id, review):
             updates = []
             values = []
             
-            if review.salon_id is not None:
-                updates.append("salon_id = %s")
-                values.append(review.salon_id)
+            if review.Busniess_id is not None:
+                updates.append("Busniess_id = %s")
+                values.append(review.Busniess_id)
             if review.user_id is not None:
                 updates.append("user_id = %s")
                 values.append(review.user_id)
@@ -521,7 +521,7 @@ def delete_review_db(con, review_id):
             return {"message": f"Review {review_id} deleted successfully"}
         
 
-# ==================== SPECIAL FUNCTIONS ====================
+# SPECIAL FUNCTIONS
 # Validate user credentials against database.
 #Returns user_id if email and password match, raises exception if invalid.
 

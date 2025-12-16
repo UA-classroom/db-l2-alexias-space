@@ -53,6 +53,7 @@ class SalonUpdate(BaseModel):
     """To update Business (PUT/PATCH)"""
     owner_id: Optional[int] = None
     name: Optional[str] = Field(None, max_length=255)
+    business_type: str = Field(..., max_length=50)
     adress: Optional[str] = Field(None, max_length=255)
     city: Optional[str] = Field(None, max_length=100)
     postal_code: Optional[str] = Field(None, max_length=10)
@@ -192,6 +193,53 @@ class Review(ReviewBase):
     salon_id: int
     user_id: int
     created_at: datetime
+
+    class Config:
+        from_attributes = True
+
+
+class StaffMemberBase(BaseModel):
+    first_name: str = Field(..., max_length=100)
+    last_name: str = Field(..., max_length=100)
+    email: Optional[str] = Field(None, max_length=255)
+    phone_number: Optional[str] = Field(None, max_length=100)
+    role: Optional[str] = Field(None, max_length=100)
+    is_active: bool = True
+
+class StaffMemberCreate(StaffMemberBase):
+    business_id: int
+
+class StaffMemberUpdate(BaseModel):
+    business_id: Optional[int] = None
+    first_name: Optional[str] = Field(None, max_length=100)
+    last_name: Optional[str] = Field(None, max_length=100)
+    email: Optional[str] = Field(None, max_length=255)
+    phone_number: Optional[str] = Field(None, max_length=100)
+    role: Optional[str] = Field(None, max_length=100)
+    is_active: Optional[bool] = None
+
+class StaffMember(StaffMemberBase):
+    staff_id: int
+    business_id: int
+    created_at: datetime
+
+    class Config:
+        from_attributes = True
+
+
+class StaffServiceBase(BaseModel):
+    staff_id: int
+    service_id: int
+
+class StaffServiceCreate(StaffServiceBase):
+    pass
+
+class StaffServiceUpdate(BaseModel):
+    staff_id: Optional[int] = None
+    service_id: Optional[int] = None
+
+class StaffService(StaffServiceBase):
+    staff_service_id: int
 
     class Config:
         from_attributes = True

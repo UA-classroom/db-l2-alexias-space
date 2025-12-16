@@ -3,21 +3,19 @@ from db_setup import get_connection
 con = get_connection()
 cur = con.cursor()
 
+# Radera gamla tabeller
+cur.execute("DROP TABLE IF EXISTS reviews CASCADE;")
+cur.execute("DROP TABLE IF EXISTS payments CASCADE;")
+cur.execute("DROP TABLE IF EXISTS bookings CASCADE;")
+cur.execute("DROP TABLE IF EXISTS staff_services CASCADE;")
+cur.execute("DROP TABLE IF EXISTS services CASCADE;")
+cur.execute("DROP TABLE IF EXISTS staff_members CASCADE;")
+cur.execute("DROP TABLE IF EXISTS businesses CASCADE;")
+cur.execute("DROP TABLE IF EXISTS salons CASCADE;")
+cur.execute("DROP TABLE IF EXISTS users CASCADE;")
 
-cur.execute("""
-    SELECT table_name 
-    FROM information_schema.tables 
-    WHERE table_schema='public'
-""")
-print("Tabeller:", cur.fetchall())
-
-
-cur.execute("SELECT * FROM users;")
-print("Users:", cur.fetchall())
-
-
-cur.execute("SELECT * FROM salons;")
-print("Salons:", cur.fetchall())
+con.commit()
+print("old tabels deleted!")
 
 cur.close()
 con.close()

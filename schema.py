@@ -101,7 +101,6 @@ class Service(ServiceBase):
     class Config:
         from_attributes = True
 
-
 # BOOKINGS 
 class BookingBase(BaseModel):
     """Common fields for Booking"""

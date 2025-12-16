@@ -2,7 +2,7 @@ from fastapi import FastAPI, HTTPException
 from db_setup import get_connection
 from schema import (
     UserCreate, User, UserUpdate,
-    SalonCreate, Salon, SalonUpdate,
+    busniessCreate, busniess, busniessUpdate,
     ServiceCreate, Service, ServiceUpdate,
     BookingCreate, Booking, BookingUpdate,
     PaymentCreate, Payment, PaymentUpdate,
@@ -68,51 +68,51 @@ def delete_user(user_id: int):
         raise HTTPException(status_code=404, detail=str(e))
 
 
-#SALONS 
+#busniess
 
-@app.get("/salons", response_model=list[Salon])
-def get_salons():
-    """Fetch all salons"""
+@app.get("/busniess", response_model=list[busniess])
+def get_busniess():
+    """Fetch all busniess"""
     try:
         con = get_connection()
-        return db.get_all_salons(con)
+        return db.get_all_busniess(con)
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
-@app.get("/salons/{salon_id}", response_model=Salon)
-def get_salon(salon_id: int):
-    """Fetch a specific salon"""
+@app.get("/busniess/{busniess_id}", response_model=busniess)
+def get_busniess(busniess_id: int):
+    """Fetch a specific busniess"""
     try:
         con = get_connection()
-        return db.get_salon_by_id(con, salon_id)
+        return db.get_busniess_by_id(con, busniess_id)
     except Exception as e:
         raise HTTPException(status_code=404, detail=str(e))
 
-@app.post("/salons", response_model=dict)
-def create_salon(salon: SalonCreate):
-    """Create new salon"""
+@app.post("/busniess", response_model=dict)
+def create_busniess(busniess: busniessCreate):
+    """Create new busniess"""
     try:
         con = get_connection()
-        salon_id = db.add_salon(con, salon)
-        return {"salon_id": salon_id, "message": "Salon created successfully"}
+        busniess_id = db.add_busniess(con, busniess)
+        return {"busniess_id": busniess_id, "message": "busniess created successfully"}
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
 
-@app.put("/salons/{salon_id}", response_model=Salon)
-def update_salon(salon_id: int, salon: SalonUpdate):
-    """Update salon"""
+@app.put("/busniess/{busniess_id}", response_model=busniess)
+def update_busniess(busniess_id: int, busniess: busniessUpdate):
+    """Update busniess"""
     try:
         con = get_connection()
-        return db.update_salon_db(con, salon_id, salon)
+        return db.update_busniess_db(con, busniess_id, busniess)
     except Exception as e:
         raise HTTPException(status_code=404, detail=str(e))
 
-@app.delete("/salons/{salon_id}")
-def delete_salon(salon_id: int):
-    """Delete salon"""
+@app.delete("/busniess/{busniess_id}")
+def delete_busniess(busniess_id: int):
+    """Delete busniess"""
     try:
         con = get_connection()
-        return db.delete_salon_db(con, salon_id)
+        return db.delete_busniess_db(con, busniess_id)
     except Exception as e:
         raise HTTPException(status_code=404, detail=str(e))
 
@@ -165,14 +165,14 @@ def delete_service(service_id: int):
     except Exception as e:
         raise HTTPException(status_code=404, detail=str(e))
 
-@app.post("/salons/{salon_id}/services", response_model=dict)
-def create_service_for_salon(salon_id: int, service: ServiceCreate):
-    """Create service for specific salon"""
+@app.post("/busniess/{busniess_id}/services", response_model=dict)
+def create_service_for_busniess(busniess_id: int, service: ServiceCreate):
+    """Create service for specific busniess"""
     try:
         con = get_connection()
-        service.salon_id = salon_id  # Set salon_id automatically
+        service.busniess_id = busniess_id  # Set busniess_id automatically
         service_id = db.add_service(con, service)
-        return {"service_id": service_id, "message": f"Service created for salon {salon_id}"}
+        return {"service_id": service_id, "message": f"Service created for busniess {busniess_id}"}
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
 
@@ -368,12 +368,12 @@ def login_user(login: LoginCreate):
     except Exception as e:
         raise HTTPException(status_code=401, detail=str(e))
 
-@app.post("/admin/salons", response_model=dict)
-def admin_create_salon(salon: SalonCreate):
-    """Admin endpoint to create salon"""
+@app.post("/admin/busniess", response_model=dict)
+def admin_create_busniess(busniess: busniessCreate):
+    """Admin endpoint to create busniess"""
     try:
         con = get_connection()
-        salon_id = db.add_salon(con, salon)
-        return {"salon_id": salon_id, "message": "Salon created by admin"}
+        busniess_id = db.add_busniess(con, busniess)
+        return {"busniess_id": busniess_id, "message": "busniess created by admin"}
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))

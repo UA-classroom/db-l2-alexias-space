@@ -325,6 +325,93 @@ def delete_review(review_id: int):
         return db.delete_review_db(con, review_id)
     except Exception as e:
         raise HTTPException(status_code=404, detail=str(e))
+    
+#STAFF MEMBERS
+
+@app.get("/staff-members", response_model=list[StaffMember])
+def get_staff_members():
+    """Fetch all staff members"""
+    try:
+        con = get_connection()
+        return db.get_all_staff_members(con)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/staff-members/{staff_id}", response_model=StaffMember)
+def get_staff_member(staff_id: int):
+    """Fetch a specific staff member"""
+    try:
+        con = get_connection()
+        return db.get_staff_member_by_id(con, staff_id)
+    except Exception as e:
+        raise HTTPException(status_code=404, detail=str(e))
+
+@app.post("/staff-members", response_model=dict)
+def create_staff_member(staff_member: StaffMemberCreate):
+    """Create new staff member"""
+    try:
+        con = get_connection()
+        staff_id = db.add_staff_member(con, staff_member)
+        return {"staff_id": staff_id, "message": "Staff member created successfully"}
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+@app.put("/staff-members/{staff_id}", response_model=StaffMember)
+def update_staff_member(staff_id: int, staff_member: StaffMemberUpdate):
+    """Update staff member"""
+    try:
+        con = get_connection()
+        return db.update_staff_member_db(con, staff_id, staff_member)
+    except Exception as e:
+        raise HTTPException(status_code=404, detail=str(e))
+
+@app.delete("/staff-members/{staff_id}")
+def delete_staff_member(staff_id: int):
+    """Delete staff member"""
+    try:
+        con = get_connection()
+        return db.delete_staff_member_db(con, staff_id)
+    except Exception as e:
+        raise HTTPException(status_code=404, detail=str(e))
+
+#STAFF SERVICES
+
+@app.get("/staff-services", response_model=list[StaffService])
+def get_staff_services():
+    """Fetch all staff-service connections"""
+    try:
+        con = get_connection()
+        return db.get_all_staff_services(con)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/staff-services/{staff_service_id}", response_model=StaffService)
+def get_staff_service(staff_service_id: int):
+    """Fetch a specific staff-service connection"""
+    try:
+        con = get_connection()
+        return db.get_staff_service_by_id(con, staff_service_id)
+    except Exception as e:
+        raise HTTPException(status_code=404, detail=str(e))
+
+@app.post("/staff-services", response_model=dict)
+def create_staff_service(staff_service: StaffServiceCreate):
+    """Create new staff-service connection"""
+    try:
+        con = get_connection()
+        staff_service_id = db.add_staff_service(con, staff_service)
+        return {"staff_service_id": staff_service_id, "message": "Staff service created successfully"}
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+@app.delete("/staff-services/{staff_service_id}")
+def delete_staff_service(staff_service_id: int):
+    """Delete staff-service connection"""
+    try:
+        con = get_connection()
+        return db.delete_staff_service_db(con, staff_service_id)
+    except Exception as e:
+        raise HTTPException(status_code=404, detail=str(e))
 
 
 #PATCH ENDPOINTS (Partial updates)

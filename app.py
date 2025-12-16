@@ -2,12 +2,15 @@ from fastapi import FastAPI, HTTPException
 from db_setup import get_connection
 from schema import (
     UserCreate, User, UserUpdate,
-    busniessCreate, busniess, busniessUpdate,
+    BusinessCreate, Business, BusinessUpdate,
+    StaffMemberCreate, StaffMember, StaffMemberUpdate,
+    StaffServiceCreate, StaffService, StaffServiceUpdate,
     ServiceCreate, Service, ServiceUpdate,
     BookingCreate, Booking, BookingUpdate,
     PaymentCreate, Payment, PaymentUpdate,
     ReviewCreate, Review, ReviewUpdate
 )
+
 import db
 
 app = FastAPI()

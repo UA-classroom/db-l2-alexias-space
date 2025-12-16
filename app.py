@@ -71,51 +71,51 @@ def delete_user(user_id: int):
         raise HTTPException(status_code=404, detail=str(e))
 
 
-#busniess
+#Business
 
-@app.get("/busniess", response_model=list[busniess])
-def get_busniess():
-    """Fetch all busniess"""
+@app.get("/Business", response_model=list[Business])
+def get_Business():
+    """Fetch all Business"""
     try:
         con = get_connection()
-        return db.get_all_busniess(con)
+        return db.get_all_Business(con)
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
-@app.get("/busniess/{busniess_id}", response_model=busniess)
-def get_busniess(busniess_id: int):
-    """Fetch a specific busniess"""
+@app.get("/Business/{Business_id}", response_model=Business)
+def get_Business(Business_id: int):
+    """Fetch a specific Business"""
     try:
         con = get_connection()
-        return db.get_busniess_by_id(con, busniess_id)
+        return db.get_Business_by_id(con, Business_id)
     except Exception as e:
         raise HTTPException(status_code=404, detail=str(e))
 
-@app.post("/busniess", response_model=dict)
-def create_busniess(busniess: busniessCreate):
-    """Create new busniess"""
+@app.post("/Business", response_model=dict)
+def create_Business(Business: BusinessCreate):
+    """Create new Business"""
     try:
         con = get_connection()
-        busniess_id = db.add_busniess(con, busniess)
-        return {"busniess_id": busniess_id, "message": "busniess created successfully"}
+        Business_id = db.add_Business(con, Business)
+        return {"Business_id": Business_id, "message": "Business created successfully"}
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
 
-@app.put("/busniess/{busniess_id}", response_model=busniess)
-def update_busniess(busniess_id: int, busniess: busniessUpdate):
-    """Update busniess"""
+@app.put("/Business/{Business_id}", response_model=Business)
+def update_Business(Business_id: int, Business: BusinessUpdate):
+    """Update Business"""
     try:
         con = get_connection()
-        return db.update_busniess_db(con, busniess_id, busniess)
+        return db.update_Business_db(con, Business_id, Business)
     except Exception as e:
         raise HTTPException(status_code=404, detail=str(e))
 
-@app.delete("/busniess/{busniess_id}")
-def delete_busniess(busniess_id: int):
-    """Delete busniess"""
+@app.delete("/Business/{Business_id}")
+def delete_Business(Business_id: int):
+    """Delete Business"""
     try:
         con = get_connection()
-        return db.delete_busniess_db(con, busniess_id)
+        return db.delete_Business_db(con, Business_id)
     except Exception as e:
         raise HTTPException(status_code=404, detail=str(e))
 
@@ -168,14 +168,14 @@ def delete_service(service_id: int):
     except Exception as e:
         raise HTTPException(status_code=404, detail=str(e))
 
-@app.post("/busniess/{busniess_id}/services", response_model=dict)
-def create_service_for_busniess(busniess_id: int, service: ServiceCreate):
-    """Create service for specific busniess"""
+@app.post("/Business/{Business_id}/services", response_model=dict)
+def create_service_for_Business(Business_id: int, service: ServiceCreate):
+    """Create service for specific Business"""
     try:
         con = get_connection()
-        service.busniess_id = busniess_id  # Set busniess_id automatically
+        service.Business_id = Business_id  # Set Business_id automatically
         service_id = db.add_service(con, service)
-        return {"service_id": service_id, "message": f"Service created for busniess {busniess_id}"}
+        return {"service_id": service_id, "message": f"Service created for Business {Business_id}"}
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
 
@@ -458,12 +458,12 @@ def login_user(login: LoginCreate):
     except Exception as e:
         raise HTTPException(status_code=401, detail=str(e))
 
-@app.post("/admin/busniess", response_model=dict)
-def admin_create_busniess(busniess: busniessCreate):
-    """Admin endpoint to create busniess"""
+@app.post("/admin/Business", response_model=dict)
+def admin_create_Business(Business: BusinessCreate):
+    """Admin endpoint to create Business"""
     try:
         con = get_connection()
-        busniess_id = db.add_busniess(con, busniess)
-        return {"busniess_id": busniess_id, "message": "busniess created by admin"}
+        Business_id = db.add_Business(con, Business)
+        return {"Business_id": Business_id, "message": "Business created by admin"}
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))

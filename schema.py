@@ -49,7 +49,7 @@ class BusinessCreate(BusinessBase):
     """To create a new Business (POST)"""
     owner_id: int
 
-class BusniessUpdate(BaseModel):
+class BusinessUpdate(BaseModel):
     """To update Business (PUT/PATCH)"""
     owner_id: Optional[int] = None
     name: Optional[str] = Field(None, max_length=255)

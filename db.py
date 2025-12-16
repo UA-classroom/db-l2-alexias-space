@@ -521,6 +521,137 @@ def delete_review_db(con, review_id):
             return {"message": f"Review {review_id} deleted successfully"}
         
 
+# staff_members
+def get_all_staff_members(con):
+    """Fetch all staff members"""
+    with con:
+        with con.cursor(cursor_factory=RealDictCursor) as cur:
+            cur.execute("SELECT * FROM staff_members;")
+            return cur.fetchall()
+
+def get_staff_member_by_id(con, staff_id):
+    """Fetch a specific staff member"""
+    with con:
+        with con.cursor(cursor_factory=RealDictCursor) as cur:
+            cur.execute("SELECT * FROM staff_members WHERE staff_id = %s;", (staff_id,))
+            staff_member = cur.fetchone()
+            if not staff_member:
+                raise Exception(f"Staff member with id {staff_id} not found")
+            return staff_member
+
+def add_staff_member(con, staff_member):
+    """Create new staff member"""
+    with con:
+        with con.cursor(cursor_factory=RealDictCursor) as cur:
+            cur.execute(
+                """
+                INSERT INTO staff_members (business_id, first_name, last_name, email, phone_number, role, is_active)
+                VALUES (%s, %s, %s, %s, %s, %s, %s)
+                RETURNING staff_id;
+                """,
+                (staff_member.business_id, staff_member.first_name, staff_member.last_name, 
+                 staff_member.email, staff_member.phone_number, staff_member.role, staff_member.is_active)
+            )
+            result = cur.fetchone()
+            return result["staff_id"]
+
+def update_staff_member_db(con, staff_id, staff_member):
+    """Update staff member"""
+    with con:
+        with con.cursor(cursor_factory=RealDictCursor) as cur:
+            updates = []
+            values = []
+            
+            if staff_member.business_id is not None:
+                updates.append("business_id = %s")
+                values.append(staff_member.business_id)
+            if staff_member.first_name is not None:
+                updates.append("first_name = %s")
+                values.append(staff_member.first_name)
+            if staff_member.last_name is not None:
+                updates.append("last_name = %s")
+                values.append(staff_member.last_name)
+            if staff_member.email is not None:
+                updates.append("email = %s")
+                values.append(staff_member.email)
+            if staff_member.phone_number is not None:
+                updates.append("phone_number = %s")
+                values.append(staff_member.phone_number)
+            if staff_member.role is not None:
+                updates.append("role = %s")
+                values.append(staff_member.role)
+            if staff_member.is_active is not None:
+                updates.append("is_active = %s")
+                values.append(staff_member.is_active)
+            
+            if not updates:
+                raise Exception("No fields to update")
+            
+            values.append(staff_id)
+            query = f"UPDATE staff_members SET {', '.join(updates)} WHERE staff_id = %s RETURNING *;"
+            cur.execute(query, values)
+            result = cur.fetchone()
+            
+            if not result:
+                raise Exception(f"Staff member with id {staff_id} not found")
+            return result
+
+def delete_staff_member_db(con, staff_id):
+    """Delete staff member"""
+    with con:
+        with con.cursor(cursor_factory=RealDictCursor) as cur:
+            cur.execute("DELETE FROM staff_members WHERE staff_id = %s RETURNING staff_id;", (staff_id,))
+            result = cur.fetchone()
+            if not result:
+                raise Exception(f"Staff member with id {staff_id} not found")
+            return {"message": f"Staff member {staff_id} deleted successfully"}
+
+
+#STAFF SERVICES
+
+def get_all_staff_services(con):
+    """Fetch all staff-service connections"""
+    with con:
+        with con.cursor(cursor_factory=RealDictCursor) as cur:
+            cur.execute("SELECT * FROM staff_services;")
+            return cur.fetchall()
+
+def get_staff_service_by_id(con, staff_service_id):
+    """Fetch a specific staff-service connection"""
+    with con:
+        with con.cursor(cursor_factory=RealDictCursor) as cur:
+            cur.execute("SELECT * FROM staff_services WHERE staff_service_id = %s;", (staff_service_id,))
+            staff_service = cur.fetchone()
+            if not staff_service:
+                raise Exception(f"Staff service with id {staff_service_id} not found")
+            return staff_service
+
+def add_staff_service(con, staff_service):
+    """Create new staff-service connection"""
+    with con:
+        with con.cursor(cursor_factory=RealDictCursor) as cur:
+            cur.execute(
+                """
+                INSERT INTO staff_services (staff_id, service_id)
+                VALUES (%s, %s)
+                RETURNING staff_service_id;
+                """,
+                (staff_service.staff_id, staff_service.service_id)
+            )
+            result = cur.fetchone()
+            return result["staff_service_id"]
+
+def delete_staff_service_db(con, staff_service_id):
+    """Delete staff-service connection"""
+    with con:
+        with con.cursor(cursor_factory=RealDictCursor) as cur:
+            cur.execute("DELETE FROM staff_services WHERE staff_service_id = %s RETURNING staff_service_id;", (staff_service_id,))
+            result = cur.fetchone()
+            if not result:
+                raise Exception(f"Staff service with id {staff_service_id} not found")
+            return {"message": f"Staff service {staff_service_id} deleted successfully"}
+
+
 # SPECIAL FUNCTIONS
 # Validate user credentials against database.
 #Returns user_id if email and password match, raises exception if invalid.

@@ -3,7 +3,7 @@ from typing import Optional
 from datetime import datetime
 
 
-# ==================== USERS ====================
+# USERS
 
 class UserBase(BaseModel):
     """Common fields for User"""
@@ -33,10 +33,10 @@ class User(UserBase):
         from_attributes = True
 
 
-# ==================== SALONS ====================
+#  SALONS
 
-class SalonBase(BaseModel):
-    """Common fields for Salon"""
+class BusinessBase(BaseModel):
+    """Common fields for Business"""
     name: str = Field(..., max_length=255)
     adress: str = Field(..., max_length=255)
     city: str = Field(..., max_length=100)
@@ -45,12 +45,12 @@ class SalonBase(BaseModel):
     email: str
     description: Optional[str] = None
 
-class SalonCreate(SalonBase):
-    """To create a new salon (POST)"""
+class BusinessCreate(BusinessBase):
+    """To create a new Business (POST)"""
     owner_id: int
 
 class SalonUpdate(BaseModel):
-    """To update salon (PUT/PATCH)"""
+    """To update Business (PUT/PATCH)"""
     owner_id: Optional[int] = None
     name: Optional[str] = Field(None, max_length=255)
     adress: Optional[str] = Field(None, max_length=255)
@@ -60,9 +60,9 @@ class SalonUpdate(BaseModel):
     email: Optional[str] = None
     description: Optional[str] = None
 
-class Salon(SalonBase):
-    """To return salon (GET)"""
-    salon_id: int
+class Business(BusinessBase):
+    """To return Business (GET)"""
+    business_id: int
     owner_id: int
     created_at: datetime
 
@@ -70,7 +70,7 @@ class Salon(SalonBase):
         from_attributes = True
 
 
-# ==================== SERVICES ====================
+# SERVICES 
 
 class ServiceBase(BaseModel):
     """Common fields for Service"""
@@ -101,7 +101,7 @@ class Service(ServiceBase):
         from_attributes = True
 
 
-# ==================== BOOKINGS ====================
+# BOOKINGS 
 
 class BookingBase(BaseModel):
     """Common fields for Booking"""
@@ -135,7 +135,7 @@ class Booking(BookingBase):
         from_attributes = True
 
 
-# ==================== PAYMENTS ====================
+# PAYMENTS 
 
 class PaymentBase(BaseModel):
     """Common fields for Payment"""
@@ -167,11 +167,11 @@ class Payment(PaymentBase):
         from_attributes = True
 
 
-# ==================== REVIEWS ====================
+# REVIEWS 
 
 class ReviewBase(BaseModel):
     """Common fields for Review"""
-    rating: int = Field(..., ge=1, le=5)  # Mellan 1-5
+    rating: int = Field(..., ge=1, le=5)  
     comment: Optional[str] = None
 
 class ReviewCreate(ReviewBase):

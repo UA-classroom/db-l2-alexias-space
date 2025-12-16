@@ -199,7 +199,7 @@ class Review(ReviewBase):
         from_attributes = True
    
 
-# Staffmember
+# Staff_member
 class StaffMemberBase(BaseModel):
     first_name: str = Field(..., max_length=100)
     last_name: str = Field(..., max_length=100)
@@ -228,7 +228,7 @@ class StaffMember(StaffMemberBase):
     class Config:
         from_attributes = True
 
-
+#staff_service 
 class StaffServiceBase(BaseModel):
     staff_id: int
     service_id: int

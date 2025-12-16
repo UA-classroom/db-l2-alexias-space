@@ -33,7 +33,7 @@ class User(UserBase):
         from_attributes = True
 
 
-#  SALONS
+#  Busniess
 
 class BusinessBase(BaseModel):
     """Common fields for Business"""
@@ -49,7 +49,7 @@ class BusinessCreate(BusinessBase):
     """To create a new Business (POST)"""
     owner_id: int
 
-class SalonUpdate(BaseModel):
+class BusniessUpdate(BaseModel):
     """To update Business (PUT/PATCH)"""
     owner_id: Optional[int] = None
     name: Optional[str] = Field(None, max_length=255)
@@ -82,11 +82,11 @@ class ServiceBase(BaseModel):
 
 class ServiceCreate(ServiceBase):
     """To create a new service (POST)"""
-    salon_id: int
+    Busniess_id: int
 
 class ServiceUpdate(BaseModel):
     """To update service (PUT/PATCH)"""
-    salon_id: Optional[int] = None
+    Busniess_id: Optional[int] = None
     name: Optional[str] = Field(None, max_length=150)
     description: Optional[str] = None
     price: Optional[float] = Field(None, gt=0)
@@ -95,7 +95,7 @@ class ServiceUpdate(BaseModel):
 class Service(ServiceBase):
     """To return service (GET)"""
     service_id: int
-    salon_id: int
+    Busniess_id: int
     created_at: datetime
 
     class Config:
@@ -103,7 +103,6 @@ class Service(ServiceBase):
 
 
 # BOOKINGS 
-
 class BookingBase(BaseModel):
     """Common fields for Booking"""
     start_time: datetime
@@ -113,14 +112,16 @@ class BookingBase(BaseModel):
 class BookingCreate(BookingBase):
     """To create a new booking (POST)"""
     user_id: int
-    salon_id: int
+    Busniess_id: int
     service_id: int
+    staff_id: Optional[int] = None
 
 class BookingUpdate(BaseModel):
     """To update booking (PUT/PATCH)"""
     user_id: Optional[int] = None
-    salon_id: Optional[int] = None
+    Busniess_id: Optional[int] = None
     service_id: Optional[int] = None
+    staff_id: Optional[int] = None
     start_time: Optional[datetime] = None
     end_time: Optional[datetime] = None
     status: Optional[str] = Field(None, max_length=50)
@@ -129,7 +130,7 @@ class Booking(BookingBase):
     """To return booking (GET)"""
     booking_id: int
     user_id: int
-    salon_id: int
+    Busniess_id: int
     service_id: int
 
     class Config:
@@ -177,12 +178,12 @@ class ReviewBase(BaseModel):
 
 class ReviewCreate(ReviewBase):
     """Common fields for Review"""
-    salon_id: int
+    Busniess_id: int
     user_id: int
 
 class ReviewUpdate(BaseModel):
     """To update review (PUT/PATCH)"""
-    salon_id: Optional[int] = None
+    Busniess_id: Optional[int] = None
     user_id: Optional[int] = None
     rating: Optional[int] = Field(None, ge=1, le=5)
     comment: Optional[str] = None
@@ -190,14 +191,15 @@ class ReviewUpdate(BaseModel):
 class Review(ReviewBase):
     """To return review (GET)"""
     review_id: int
-    salon_id: int
+    Busniess_id: int
     user_id: int
     created_at: datetime
 
     class Config:
         from_attributes = True
+   
 
-
+# Staffmember
 class StaffMemberBase(BaseModel):
     first_name: str = Field(..., max_length=100)
     last_name: str = Field(..., max_length=100)

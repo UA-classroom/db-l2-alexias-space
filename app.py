@@ -1,38 +1,469 @@
-import os
-
-import psycopg2
-from db_setup import get_connection
 from fastapi import FastAPI, HTTPException
+from db_setup import get_connection
+from schema import (
+    UserCreate, User, UserUpdate,
+    BusinessCreate, Business, BusinessUpdate,
+    StaffMemberCreate, StaffMember, StaffMemberUpdate,
+    StaffServiceCreate, StaffService, StaffServiceUpdate,
+    ServiceCreate, Service, ServiceUpdate,
+    BookingCreate, Booking, BookingUpdate,
+    PaymentCreate, Payment, PaymentUpdate,
+    ReviewCreate, Review, ReviewUpdate
+)
+
+import db
 
 app = FastAPI()
 
-"""
-ADD ENDPOINTS FOR FASTAPI HERE
-Make sure to do the following:
-- Use the correct HTTP method (e.g get, post, put, delete)
-- Use correct STATUS CODES, e.g 200, 400, 401 etc. when returning a result to the user
-- Use pydantic models whenever you receive user data and need to validate the structure and data types (VG)
-This means you need some error handling that determine what should be returned to the user
-Read more: https://www.geeksforgeeks.org/10-most-common-http-status-codes/
-- Use correct URL paths the resource, e.g some endpoints should be located at the exact same URL, 
-but will have different HTTP-verbs.
-"""
+#HOME 
+   
+@app.get("/")
+def home():
+    return {"message": "Booking System API is running!"}
 
 
-# INSPIRATION FOR A LIST-ENDPOINT - Not necessary to use pydantic models, but we could to ascertain that we return the correct values
-# @app.get("/items/")
-# def read_items():
-#     con = get_connection()
-#     items = get_items(con)
-#     return {"items": items}
+# USERS
+
+@app.get("/users", response_model=list[User])
+def get_users():
+    """Fetch all users"""
+    try:
+        con = get_connection()
+        return db.get_all_users(con)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/users/{user_id}", response_model=User)
+def get_user(user_id: int):
+    """Fetch a specific user"""
+    try:
+        con = get_connection()
+        return db.get_user_by_id(con, user_id)
+    except Exception as e:
+        raise HTTPException(status_code=404, detail=str(e))
+
+@app.post("/users", response_model=dict)
+def create_user(user: UserCreate):
+    """Create new user"""
+    try:
+        con = get_connection()
+        user_id = db.add_user(con, user)
+        return {"user_id": user_id, "message": "User created successfully"}
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+@app.put("/users/{user_id}", response_model=User)
+def update_user(user_id: int, user: UserUpdate):
+    """Update user"""
+    try:
+        con = get_connection()
+        return db.update_user_db(con, user_id, user)
+    except Exception as e:
+        raise HTTPException(status_code=404, detail=str(e))
+
+@app.delete("/users/{user_id}")
+def delete_user(user_id: int):
+    """Delete user"""
+    try:
+        con = get_connection()
+        return db.delete_user_db(con, user_id)
+    except Exception as e:
+        raise HTTPException(status_code=404, detail=str(e))
 
 
-# INSPIRATION FOR A POST-ENDPOINT, uses a pydantic model to validate
-# @app.post("/validation_items/")
-# def create_item_validation(item: ItemCreate):
-#     con = get_connection()
-#     item_id = add_item_validation(con, item)
-#     return {"item_id": item_id}
+#Business
+
+@app.get("/Business", response_model=list[Business])
+def get_Business():
+    """Fetch all Business"""
+    try:
+        con = get_connection()
+        return db.get_all_Business(con)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/Business/{Business_id}", response_model=Business)
+def get_Business(Business_id: int):
+    """Fetch a specific Business"""
+    try:
+        con = get_connection()
+        return db.get_Business_by_id(con, Business_id)
+    except Exception as e:
+        raise HTTPException(status_code=404, detail=str(e))
+
+@app.post("/Business", response_model=dict)
+def create_Business(Business: BusinessCreate):
+    """Create new Business"""
+    try:
+        con = get_connection()
+        Business_id = db.add_Business(con, Business)
+        return {"Business_id": Business_id, "message": "Business created successfully"}
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+@app.put("/Business/{Business_id}", response_model=Business)
+def update_Business(Business_id: int, Business: BusinessUpdate):
+    """Update Business"""
+    try:
+        con = get_connection()
+        return db.update_Business_db(con, Business_id, Business)
+    except Exception as e:
+        raise HTTPException(status_code=404, detail=str(e))
+
+@app.delete("/Business/{Business_id}")
+def delete_Business(Business_id: int):
+    """Delete Business"""
+    try:
+        con = get_connection()
+        return db.delete_Business_db(con, Business_id)
+    except Exception as e:
+        raise HTTPException(status_code=404, detail=str(e))
 
 
-# IMPLEMENT THE ACTUAL ENDPOINTS! Feel free to remove
+#SERVICES
+
+@app.get("/services", response_model=list[Service])
+def get_services():
+    """Fetch all services"""
+    try:
+        con = get_connection()
+        return db.get_all_services(con)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/services/{service_id}", response_model=Service)
+def get_service(service_id: int):
+    """Fetch a specific service"""
+    try:
+        con = get_connection()
+        return db.get_service_by_id(con, service_id)
+    except Exception as e:
+        raise HTTPException(status_code=404, detail=str(e))
+
+@app.post("/services", response_model=dict)
+def create_service(service: ServiceCreate):
+    """Create new service"""
+    try:
+        con = get_connection()
+        service_id = db.add_service(con, service)
+        return {"service_id": service_id, "message": "Service created successfully"}
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+@app.put("/services/{service_id}", response_model=Service)
+def update_service(service_id: int, service: ServiceUpdate):
+    """Update service"""
+    try:
+        con = get_connection()
+        return db.update_service_db(con, service_id, service)
+    except Exception as e:
+        raise HTTPException(status_code=404, detail=str(e))
+
+@app.delete("/services/{service_id}")
+def delete_service(service_id: int):
+    """Delete service"""
+    try:
+        con = get_connection()
+        return db.delete_service_db(con, service_id)
+    except Exception as e:
+        raise HTTPException(status_code=404, detail=str(e))
+
+@app.post("/Business/{Business_id}/services", response_model=dict)
+def create_service_for_Business(Business_id: int, service: ServiceCreate):
+    """Create service for specific Business"""
+    try:
+        con = get_connection()
+        service.Business_id = Business_id  # Set Business_id automatically
+        service_id = db.add_service(con, service)
+        return {"service_id": service_id, "message": f"Service created for Business {Business_id}"}
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+
+#BOOKINGS
+
+@app.get("/bookings", response_model=list[Booking])
+def get_bookings():
+    """Fetch all bookings"""
+    try:
+        con = get_connection()
+        return db.get_all_bookings(con)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/bookings/{booking_id}", response_model=Booking)
+def get_booking(booking_id: int):
+    """Fetch a specific booking"""
+    try:
+        con = get_connection()
+        return db.get_booking_by_id(con, booking_id)
+    except Exception as e:
+        raise HTTPException(status_code=404, detail=str(e))
+
+@app.post("/bookings", response_model=dict)
+def create_booking(booking: BookingCreate):
+    """Create new booking"""
+    try:
+        con = get_connection()
+        booking_id = db.add_booking(con, booking)
+        return {"booking_id": booking_id, "message": "Booking created successfully"}
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+@app.put("/bookings/{booking_id}", response_model=Booking)
+def update_booking(booking_id: int, booking: BookingUpdate):
+    """Update booking"""
+    try:
+        con = get_connection()
+        return db.update_booking_db(con, booking_id, booking)
+    except Exception as e:
+        raise HTTPException(status_code=404, detail=str(e))
+
+@app.delete("/bookings/{booking_id}")
+def delete_booking(booking_id: int):
+    """Delete booking"""
+    try:
+        con = get_connection()
+        return db.delete_booking_db(con, booking_id)
+    except Exception as e:
+        raise HTTPException(status_code=404, detail=str(e))
+
+
+#PAYMENTS
+
+@app.get("/payments", response_model=list[Payment])
+def get_payments():
+    """Fetch all payments"""
+    try:
+        con = get_connection()
+        return db.get_all_payments(con)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/payments/{payment_id}", response_model=Payment)
+def get_payment(payment_id: int):
+    """Fetch a specific payment"""
+    try:
+        con = get_connection()
+        return db.get_payment_by_id(con, payment_id)
+    except Exception as e:
+        raise HTTPException(status_code=404, detail=str(e))
+
+@app.post("/payments", response_model=dict)
+def create_payment(payment: PaymentCreate):
+    """Create new payment"""
+    try:
+        con = get_connection()
+        payment_id = db.add_payment(con, payment)
+        return {"payment_id": payment_id, "message": "Payment created successfully"}
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+@app.put("/payments/{payment_id}", response_model=Payment)
+def update_payment(payment_id: int, payment: PaymentUpdate):
+    """Update payment"""
+    try:
+        con = get_connection()
+        return db.update_payment_db(con, payment_id, payment)
+    except Exception as e:
+        raise HTTPException(status_code=404, detail=str(e))
+
+@app.delete("/payments/{payment_id}")
+def delete_payment(payment_id: int):
+    """Delete payment"""
+    try:
+        con = get_connection()
+        return db.delete_payment_db(con, payment_id)
+    except Exception as e:
+        raise HTTPException(status_code=404, detail=str(e))
+
+
+#REVIEWS
+
+@app.get("/reviews", response_model=list[Review])
+def get_reviews():
+    """Fetch all reviews"""
+    try:
+        con = get_connection()
+        return db.get_all_reviews(con)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/reviews/{review_id}", response_model=Review)
+def get_review(review_id: int):
+    """Fetch a specific review"""
+    try:
+        con = get_connection()
+        return db.get_review_by_id(con, review_id)
+    except Exception as e:
+        raise HTTPException(status_code=404, detail=str(e))
+
+@app.post("/reviews", response_model=dict)
+def create_review(review: ReviewCreate):
+    """Create new review"""
+    try:
+        con = get_connection()
+        review_id = db.add_review(con, review)
+        return {"review_id": review_id, "message": "Review created successfully"}
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+@app.put("/reviews/{review_id}", response_model=Review)
+def update_review(review_id: int, review: ReviewUpdate):
+    """Update review"""
+    try:
+        con = get_connection()
+        return db.update_review_db(con, review_id, review)
+    except Exception as e:
+        raise HTTPException(status_code=404, detail=str(e))
+
+@app.delete("/reviews/{review_id}")
+def delete_review(review_id: int):
+    """Delete review"""
+    try:
+        con = get_connection()
+        return db.delete_review_db(con, review_id)
+    except Exception as e:
+        raise HTTPException(status_code=404, detail=str(e))
+    
+#STAFF MEMBERS
+
+@app.get("/staff-members", response_model=list[StaffMember])
+def get_staff_members():
+    """Fetch all staff members"""
+    try:
+        con = get_connection()
+        return db.get_all_staff_members(con)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/staff-members/{staff_id}", response_model=StaffMember)
+def get_staff_member(staff_id: int):
+    """Fetch a specific staff member"""
+    try:
+        con = get_connection()
+        return db.get_staff_member_by_id(con, staff_id)
+    except Exception as e:
+        raise HTTPException(status_code=404, detail=str(e))
+
+@app.post("/staff-members", response_model=dict)
+def create_staff_member(staff_member: StaffMemberCreate):
+    """Create new staff member"""
+    try:
+        con = get_connection()
+        staff_id = db.add_staff_member(con, staff_member)
+        return {"staff_id": staff_id, "message": "Staff member created successfully"}
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+@app.put("/staff-members/{staff_id}", response_model=StaffMember)
+def update_staff_member(staff_id: int, staff_member: StaffMemberUpdate):
+    """Update staff member"""
+    try:
+        con = get_connection()
+        return db.update_staff_member_db(con, staff_id, staff_member)
+    except Exception as e:
+        raise HTTPException(status_code=404, detail=str(e))
+
+@app.delete("/staff-members/{staff_id}")
+def delete_staff_member(staff_id: int):
+    """Delete staff member"""
+    try:
+        con = get_connection()
+        return db.delete_staff_member_db(con, staff_id)
+    except Exception as e:
+        raise HTTPException(status_code=404, detail=str(e))
+
+#STAFF SERVICES
+
+@app.get("/staff-services", response_model=list[StaffService])
+def get_staff_services():
+    """Fetch all staff-service connections"""
+    try:
+        con = get_connection()
+        return db.get_all_staff_services(con)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/staff-services/{staff_service_id}", response_model=StaffService)
+def get_staff_service(staff_service_id: int):
+    """Fetch a specific staff-service connection"""
+    try:
+        con = get_connection()
+        return db.get_staff_service_by_id(con, staff_service_id)
+    except Exception as e:
+        raise HTTPException(status_code=404, detail=str(e))
+
+@app.post("/staff-services", response_model=dict)
+def create_staff_service(staff_service: StaffServiceCreate):
+    """Create new staff-service connection"""
+    try:
+        con = get_connection()
+        staff_service_id = db.add_staff_service(con, staff_service)
+        return {"staff_service_id": staff_service_id, "message": "Staff service created successfully"}
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+@app.delete("/staff-services/{staff_service_id}")
+def delete_staff_service(staff_service_id: int):
+    """Delete staff-service connection"""
+    try:
+        con = get_connection()
+        return db.delete_staff_service_db(con, staff_service_id)
+    except Exception as e:
+        raise HTTPException(status_code=404, detail=str(e))
+
+
+#PATCH ENDPOINTS (Partial updates)
+
+from pydantic import BaseModel
+
+class UpdateEmail(BaseModel):
+    email: str
+
+class UpdateStatus(BaseModel):
+    status: str
+
+@app.patch("/users/{user_id}/email", response_model=User)
+def update_user_email(user_id: int, email: UpdateEmail):
+    """Update only email for user"""
+    try:
+        con = get_connection()
+        return db.update_user_email_db(con, user_id, email)
+    except Exception as e:
+        raise HTTPException(status_code=404, detail=str(e))
+
+@app.patch("/bookings/{booking_id}/status", response_model=Booking)
+def update_booking_status(booking_id: int, status: UpdateStatus):
+    """Update only status for booking"""
+    try:
+        con = get_connection()
+        return db.update_booking_status_db(con, booking_id, status)
+    except Exception as e:
+        raise HTTPException(status_code=404, detail=str(e))
+
+
+#SPECIAL ENDPOINTS
+
+class LoginCreate(BaseModel):
+    email: str
+    password_hash: str
+
+@app.post("/login")
+def login_user(login: LoginCreate):
+    """Login endpoint"""
+    try:
+        con = get_connection()
+        return db.login_user_db(con, login)
+    except Exception as e:
+        raise HTTPException(status_code=401, detail=str(e))
+
+@app.post("/admin/Business", response_model=dict)
+def admin_create_Business(Business: BusinessCreate):
+    """Admin endpoint to create Business"""
+    try:
+        con = get_connection()
+        Business_id = db.add_Business(con, Business)
+        return {"Business_id": Business_id, "message": "Business created by admin"}
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))

@@ -1,48 +1,671 @@
 import psycopg2
 from psycopg2.extras import RealDictCursor
 
-"""
-This file is responsible for making database queries, which your fastapi endpoints/routes can use.
-The reason we split them up is to avoid clutter in the endpoints, so that the endpoints might focus on other tasks 
+# USERS 
 
-- Try to return results with cursor.fetchall() or cursor.fetchone() when possible
-- Make sure you always give the user response if something went right or wrong, sometimes 
-you might need to use the RETURNING keyword to garantuee that something went right / wrong
-e.g when making DELETE or UPDATE queries
-- No need to use a class here
-- Try to raise exceptions to make them more reusable and work a lot with returns
-- You will need to decide which parameters each function should receive. All functions 
-start with a connection parameter.
-- Below, a few inspirational functions exist - feel free to completely ignore how they are structured
-- E.g, if you decide to use psycopg3, you'd be able to directly use pydantic models with the cursor, these examples are however using psycopg2 and RealDictCursor
-"""
+def get_all_users(con):
+    """Fetch all users"""
+    with con:
+        with con.cursor(cursor_factory=RealDictCursor) as cursor:
+            cursor.execute("SELECT * FROM users;")
+            return cursor.fetchall() 
+        
+def get_user_by_id(con, user_id):
+    """Fetch a specific user"""
+    with con:
+        with con.cursor(cursor_factory=RealDictCursor) as cursor:
+            cursor.execute("SELECT * FROM users WHERE user_id = %s;", (user_id,))
+            user = cursor.fetchone()
+            if not user:
+                raise Exception(f"User with id {user_id} not found")
+            return user
+        
+def add_user(con, user):
+    """Create new user"""
+    with con:
+        with con.cursor(cursor_factory=RealDictCursor) as cursor:
+            cursor.execute(
+                """
+                INSERT INTO users (first_name, last_name, email, phone_number, password_hash)
+                VALUES (%s, %s, %s, %s, %s)
+                RETURNING user_id;
+                """,
+                (user.first_name, user.last_name, user.email, user.phone_number, user.password_hash)
+            )
+            result = cursor.fetchone()
+            return result["user_id"]
+        
+def update_user_db(con, user_id, user):
+    """Update user (PUT - all fields)"""
+    with con:
+        with con.cursor(cursor_factory=RealDictCursor) as cursor:
+            # Build UPDATE dynamically based on which fields exist
+            updates = []
+            values = []
+            
+            if user.first_name is not None:
+                updates.append("first_name = %s")
+                values.append(user.first_name)
+            if user.last_name is not None:
+                updates.append("last_name = %s")
+                values.append(user.last_name)
+            if user.email is not None:
+                updates.append("email = %s")
+                values.append(user.email)
+            if user.phone_number is not None:
+                updates.append("phone_number = %s")
+                values.append(user.phone_number)
+            if user.password_hash is not None:
+                updates.append("password_hash = %s")
+                values.append(user.password_hash)
+            
+            if not updates:
+                raise Exception("No fields to update")
+            
+            values.append(user_id)
+            query = f"UPDATE users SET {', '.join(updates)} WHERE user_id = %s RETURNING *;"
+            cursor.execute(query, values)
+            result = cursor.fetchone()
+            
+            if not result:
+                raise Exception(f"User with id {user_id} not found")
+            return result 
+        
+def delete_user_db(con, user_id):
+    """Delete user"""
+    with con:
+        with con.cursor(cursor_factory=RealDictCursor) as cursor:
+            cursor.execute("DELETE FROM users WHERE user_id = %s RETURNING user_id;", (user_id,))
+            result = cursor.fetchone()
+            if not result:
+                raise Exception(f"User with id {user_id} not found")
+            return {"message": f"User {user_id} deleted successfully"}
+        
+def update_user_email_db(con, user_id, email):
+    """Update only email (PATCH)"""
+    with con:
+        with con.cursor(cursor_factory=RealDictCursor) as cursor:
+            cursor.execute(
+                "UPDATE users SET email = %s WHERE user_id = %s RETURNING *;",
+                (email.email, user_id)
+            )
+            result = cursor.fetchone()
+            if not result:
+                raise Exception(f"User with id {user_id} not found")
+            return result
+        
+# Busniess
+
+def get_all_Busniesses(con):
+    """Fetch all Busniesses"""
+    with con:
+        with con.cursor(cursor_factory=RealDictCursor) as cursor:
+            cursor.execute("SELECT * FROM Busniesses;")
+            return cursor.fetchall()
+        
+def get_Busniess_by_id(con, Busniess_id):
+    """Fetch a specific Busniess"""
+    with con:
+        with con.cursor(cursor_factory=RealDictCursor) as cursor:
+            cursor.execute("SELECT * FROM Busniesses WHERE Busniess_id = %s;", (Busniess_id,))
+            Busniess = cursor.fetchone()
+            if not Busniess:
+                raise Exception(f"Busniess with id {Busniess_id} not found")
+            return Busniess
+        
+def add_Busniess(con, Busniess):
+    """Create new Busniess"""
+    with con:
+        with con.cursor(cursor_factory=RealDictCursor) as cursor:
+            cursor.execute(
+                """
+                INSERT INTO Busniesses (owner_id, name, adress, city, postal_code, phone_number, email, description)
+                VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
+                RETURNING Busniess_id;
+                """,
+                (Busniess.owner_id, Busniess.name, Busniess.adress, Busniess.city, 
+                 Busniess.postal_code, Busniess.phone_number, Busniess.email, Busniess.description)
+            )
+            result = cursor.fetchone()
+            return result["Busniess_id"]
+        
+def update_Busniess_db(con, Busniess_id, Busniess):
+    """Update Busniess"""
+    with con:
+        with con.cursor(cursor_factory=RealDictCursor) as cursor:
+            updates = []
+            values = []
+            
+            if Busniess.owner_id is not None:
+                updates.append("owner_id = %s")
+                values.append(Busniess.owner_id)
+            if Busniess.name is not None:
+                updates.append("name = %s")
+                values.append(Busniess.name)
+            if Busniess.adress is not None:
+                updates.append("adress = %s")
+                values.append(Busniess.adress)
+            if Busniess.city is not None:
+                updates.append("city = %s")
+                values.append(Busniess.city)
+            if Busniess.postal_code is not None:
+                updates.append("postal_code = %s")
+                values.append(Busniess.postal_code)
+            if Busniess.phone_number is not None:
+                updates.append("phone_number = %s")
+                values.append(Busniess.phone_number)
+            if Busniess.email is not None:
+                updates.append("email = %s")
+                values.append(Busniess.email)
+            if Busniess.description is not None:
+                updates.append("description = %s")
+                values.append(Busniess.description)
+            
+            if not updates:
+                raise Exception("No fields to update")
+            
+            values.append(Busniess_id)
+            query = f"UPDATE Busniesses SET {', '.join(updates)} WHERE Busniess_id = %s RETURNING *;"
+            cursor.execute(query, values)
+            result = cursor.fetchone()
+            
+            if not result:
+                raise Exception(f"Busniess with id {Busniess_id} not found")
+            return result
+        
+
+def delete_Busniess_db(con, Busniess_id):
+    """Delete Busniess"""
+    with con:
+        with con.cursor(cursor_factory=RealDictCursor) as cursor:
+            cursor.execute("DELETE FROM Busniesses WHERE Busniess_id = %s RETURNING Busniess_id;", (Busniess_id,))
+            result = cursor.fetchone()
+            if not result:
+                raise Exception(f"Busniess with id {Busniess_id} not found")
+            return {"message": f"Busniess {Busniess_id} deleted successfully"}
+
+#SERVICES 
+
+def get_all_services(con):
+    """Fetch all services"""
+    with con:
+        with con.cursor(cursor_factory=RealDictCursor) as cursor:
+            cursor.execute("SELECT * FROM services;")
+            return cursor.fetchall()
+        
+def get_service_by_id(con, service_id):
+    """Fetch a specific service"""
+    with con:
+        with con.cursor(cursor_factory=RealDictCursor) as cursor:
+            cursor.execute("SELECT * FROM services WHERE service_id = %s;", (service_id,))
+            service = cursor.fetchone()
+            if not service:
+                raise Exception(f"Service with id {service_id} not found")
+            return service
+        
+def add_service(con, service):
+    """Create new service"""
+    with con:
+        with con.cursor(cursor_factory=RealDictCursor) as cursor:
+            cursor.execute(
+                """
+                INSERT INTO services (Busniess_id, name, description, price, is_active)
+                VALUES (%s, %s, %s, %s, %s)
+                RETURNING service_id;
+                """,
+                (service.Busniess_id, service.name, service.description, service.price, service.is_active)
+            )
+            result = cursor.fetchone()
+            return result["service_id"]
+        
+def update_service_db(con, service_id, service):
+    """Update service"""
+    with con:
+        with con.cursor(cursor_factory=RealDictCursor) as cursor:
+            updates = []
+            values = []
+            
+            if service.Busniess_id is not None:
+                updates.append("Busniess_id = %s")
+                values.append(service.Busniess_id)
+            if service.name is not None:
+                updates.append("name = %s")
+                values.append(service.name)
+            if service.description is not None:
+                updates.append("description = %s")
+                values.append(service.description)
+            if service.price is not None:
+                updates.append("price = %s")
+                values.append(service.price)
+            if service.is_active is not None:
+                updates.append("is_active = %s")
+                values.append(service.is_active)
+            
+            if not updates:
+                raise Exception("No fields to update")
+            
+            values.append(service_id)
+            query = f"UPDATE services SET {', '.join(updates)} WHERE service_id = %s RETURNING *;"
+            cursor.execute(query, values)
+            result = cursor.fetchone()
+            
+            if not result:
+                raise Exception(f"Service with id {service_id} not found")
+            return result
+        
+def delete_service_db(con, service_id):
+    """Delete service"""
+    with con:
+        with con.cursor(cursor_factory=RealDictCursor) as cursor:
+            cursor.execute("DELETE FROM services WHERE service_id = %s RETURNING service_id;", (service_id,))
+            result = cursor.fetchone()
+            if not result:
+                raise Exception(f"Service with id {service_id} not found")
+            return {"message": f"Service {service_id} deleted successfully"}
+
+#BOOKINGS 
+
+def get_all_bookings(con):
+    """Fetch all bookings"""
+    with con:
+        with con.cursor(cursor_factory=RealDictCursor) as cursor:
+            cursor.execute("SELECT * FROM bookings;")
+            return cursor.fetchall()
+        
+def get_booking_by_id(con, booking_id):
+    """Fetch a specific booking"""
+    with con:
+        with con.cursor(cursor_factory=RealDictCursor) as cursor:
+            cursor.execute("SELECT * FROM bookings WHERE booking_id = %s;", (booking_id,))
+            booking = cursor.fetchone()
+            if not booking:
+                raise Exception(f"Booking with id {booking_id} not found")
+            return booking
+        
+def add_booking(con, booking):
+    """Create new booking"""
+    with con:
+        with con.cursor(cursor_factory=RealDictCursor) as cursor:
+            cursor.execute(
+                """
+                INSERT INTO bookings (user_id, Busniess_id, service_id, start_time, end_time, status)
+                VALUES (%s, %s, %s, %s, %s, %s)
+                RETURNING booking_id;
+                """,
+                (booking.user_id, booking.Busniess_id, booking.service_id, 
+                 booking.start_time, booking.end_time, booking.status)
+            )
+            result = cursor.fetchone()
+            return result["booking_id"]
+        
+def update_booking_db(con, booking_id, booking):
+    """Update booking"""
+    with con:
+        with con.cursor(cursor_factory=RealDictCursor) as cursor:
+            updates = []
+            values = []
+            
+            if booking.user_id is not None:
+                updates.append("user_id = %s")
+                values.append(booking.user_id)
+            if booking.Busniess_id is not None:
+                updates.append("Busniess_id = %s")
+                values.append(booking.Busniess_id)
+            if booking.service_id is not None:
+                updates.append("service_id = %s")
+                values.append(booking.service_id)
+            if booking.start_time is not None:
+                updates.append("start_time = %s")
+                values.append(booking.start_time)
+            if booking.end_time is not None:
+                updates.append("end_time = %s")
+                values.append(booking.end_time)
+            if booking.status is not None:
+                updates.append("status = %s")
+                values.append(booking.status)
+            
+            if not updates:
+                raise Exception("No fields to update")
+            
+            values.append(booking_id)
+            query = f"UPDATE bookings SET {', '.join(updates)} WHERE booking_id = %s RETURNING *;"
+            cursor.execute(query, values)
+            result = cursor.fetchone()
+            
+            if not result:
+                raise Exception(f"Booking with id {booking_id} not found")
+            return result
+        
+def delete_booking_db(con, booking_id):
+    """Delete booking"""
+    with con:
+        with con.cursor(cursor_factory=RealDictCursor) as cursor:
+            cursor.execute("DELETE FROM bookings WHERE booking_id = %s RETURNING booking_id;", (booking_id,))
+            result = cursor.fetchone()
+            if not result:
+                raise Exception(f"Booking with id {booking_id} not found")
+            return {"message": f"Booking {booking_id} deleted successfully"}
 
 
-### THIS IS JUST AN EXAMPLE OF A FUNCTION FOR INSPIRATION FOR A LIST-OPERATION (FETCHING MANY ENTRIES)
-# def get_items(con):
-#     with con:
-#         with con.cursor(cursor_factory=RealDictCursor) as cursor:
-#             cursor.execute("SELECT * FROM items;")
-#             items = cursor.fetchall()
-#     return items
+def update_booking_status_db(con, booking_id, status):
+    """Update only booking status (PATCH)"""
+    with con:
+        with con.cursor(cursor_factory=RealDictCursor) as cursor:
+            cursor.execute(
+                "UPDATE bookings SET status = %s WHERE booking_id = %s RETURNING *;",
+                (status.status, booking_id)
+            )
+            result = cursor.fetchone()
+            if not result:
+                raise Exception(f"Booking with id {booking_id} not found")
+            return result
+        
+# PAYMENTS
+
+def get_all_payments(con):
+    """Fetch all payments"""
+    with con:
+        with con.cursor(cursor_factory=RealDictCursor) as cursor:
+            cursor.execute("SELECT * FROM payments;")
+            return cursor.fetchall() 
+        
+
+def get_payment_by_id(con, payment_id):
+    """Fetch a specific payment"""
+    with con:
+        with con.cursor(cursor_factory=RealDictCursor) as cursor:
+            cursor.execute("SELECT * FROM payments WHERE payment_id = %s;", (payment_id,))
+            payment = cursor.fetchone()
+            if not payment:
+                raise Exception(f"Payment with id {payment_id} not found")
+            return payment
+        
+
+def add_payment(con, payment):
+    """Create new payment"""
+    with con:
+        with con.cursor(cursor_factory=RealDictCursor) as cursor:
+            cursor.execute(
+                """
+                INSERT INTO payments (booking_id, user_id, amount, payment_method, transaction_status)
+                VALUES (%s, %s, %s, %s, %s)
+                RETURNING payment_id;
+                """,
+                (payment.booking_id, payment.user_id, payment.amount, 
+                 payment.payment_method, payment.transaction_status)
+            )
+            result = cursor.fetchone()
+            return result["payment_id"]
+        
+def update_payment_db(con, payment_id, payment):
+    """Update payment"""
+    with con:
+        with con.cursor(cursor_factory=RealDictCursor) as cursor:
+            updates = []
+            values = []
+            
+            if payment.booking_id is not None:
+                updates.append("booking_id = %s")
+                values.append(payment.booking_id)
+            if payment.user_id is not None:
+                updates.append("user_id = %s")
+                values.append(payment.user_id)
+            if payment.amount is not None:
+                updates.append("amount = %s")
+                values.append(payment.amount)
+            if payment.payment_method is not None:
+                updates.append("payment_method = %s")
+                values.append(payment.payment_method)
+            if payment.transaction_status is not None:
+                updates.append("transaction_status = %s")
+                values.append(payment.transaction_status)
+            
+            if not updates:
+                raise Exception("No fields to update")
+            
+            values.append(payment_id)
+            query = f"UPDATE payments SET {', '.join(updates)} WHERE payment_id = %s RETURNING *;"
+            cursor.execute(query, values)
+            result = cursor.fetchone()
+            
+            if not result:
+                raise Exception(f"Payment with id {payment_id} not found")
+            return result 
+        
+def delete_payment_db(con, payment_id):
+    """Delete payment"""
+    with con:
+        with con.cursor(cursor_factory=RealDictCursor) as cursor:
+            cursor.execute("DELETE FROM payments WHERE payment_id = %s RETURNING payment_id;", (payment_id,))
+            result = cursor.fetchone()
+            if not result:
+                raise Exception(f"Payment with id {payment_id} not found")
+            return {"message": f"Payment {payment_id} deleted successfully"}
 
 
-### THIS IS JUST INSPIRATION FOR A DETAIL OPERATION (FETCHING ONE ENTRY)
-# def get_item(con, item_id):
-#     with con:
-#         with con.cursor(cursor_factory=RealDictCursor) as cursor:
-#             cursor.execute("""SELECT * FROM items WHERE id = %s""", (item_id,))
-#             item = cursor.fetchone()
-#             return item
+#REVIEWS
+
+def get_all_reviews(con):
+    """Fetch all reviews"""
+    with con:
+        with con.cursor(cursor_factory=RealDictCursor) as cursor:
+            cursor.execute("SELECT * FROM reviews;")
+            return cursor.fetchall()
+
+def get_review_by_id(con, review_id):
+    """Fetch a specific review"""
+    with con:
+        with con.cursor(cursor_factory=RealDictCursor) as cursor:
+            cursor.execute("SELECT * FROM reviews WHERE review_id = %s;", (review_id,))
+            review = cursor.fetchone()
+            if not review:
+                raise Exception(f"Review with id {review_id} not found")
+            return review
+        
+def add_review(con, review):
+    """Create new review"""
+    with con:
+        with con.cursor(cursor_factory=RealDictCursor) as cursor:
+            cursor.execute(
+                """
+                INSERT INTO reviews (Busniess_id, user_id, rating, comment)
+                VALUES (%s, %s, %s, %s)
+                RETURNING review_id;
+                """,
+                (review.Busniess_id, review.user_id, review.rating, review.comment)
+            )
+            result = cursor.fetchone()
+            return result["review_id"]
+        
+
+def update_review_db(con, review_id, review):
+    """Update review"""
+    with con:
+        with con.cursor(cursor_factory=RealDictCursor) as cursor:
+            updates = []
+            values = []
+            
+            if review.Busniess_id is not None:
+                updates.append("Busniess_id = %s")
+                values.append(review.Busniess_id)
+            if review.user_id is not None:
+                updates.append("user_id = %s")
+                values.append(review.user_id)
+            if review.rating is not None:
+                updates.append("rating = %s")
+                values.append(review.rating)
+            if review.comment is not None:
+                updates.append("comment = %s")
+                values.append(review.comment)
+            
+            if not updates:
+                raise Exception("No fields to update")
+            
+            values.append(review_id)
+            query = f"UPDATE reviews SET {', '.join(updates)} WHERE review_id = %s RETURNING *;"
+            cursor.execute(query, values)
+            result = cursor.fetchone()
+            
+            if not result:
+                raise Exception(f"Review with id {review_id} not found")
+            return result
+
+def delete_review_db(con, review_id):
+    """Delete review"""
+    with con:
+        with con.cursor(cursor_factory=RealDictCursor) as cursor:
+            cursor.execute("DELETE FROM reviews WHERE review_id = %s RETURNING review_id;", (review_id,))
+            result = cursor.fetchone()
+            if not result:
+                raise Exception(f"Review with id {review_id} not found")
+            return {"message": f"Review {review_id} deleted successfully"}
+        
+
+# staff_members
+def get_all_staff_members(con):
+    """Fetch all staff members"""
+    with con:
+        with con.cursor(cursor_factory=RealDictCursor) as cur:
+            cur.execute("SELECT * FROM staff_members;")
+            return cur.fetchall()
+
+def get_staff_member_by_id(con, staff_id):
+    """Fetch a specific staff member"""
+    with con:
+        with con.cursor(cursor_factory=RealDictCursor) as cur:
+            cur.execute("SELECT * FROM staff_members WHERE staff_id = %s;", (staff_id,))
+            staff_member = cur.fetchone()
+            if not staff_member:
+                raise Exception(f"Staff member with id {staff_id} not found")
+            return staff_member
+
+def add_staff_member(con, staff_member):
+    """Create new staff member"""
+    with con:
+        with con.cursor(cursor_factory=RealDictCursor) as cur:
+            cur.execute(
+                """
+                INSERT INTO staff_members (business_id, first_name, last_name, email, phone_number, role, is_active)
+                VALUES (%s, %s, %s, %s, %s, %s, %s)
+                RETURNING staff_id;
+                """,
+                (staff_member.business_id, staff_member.first_name, staff_member.last_name, 
+                 staff_member.email, staff_member.phone_number, staff_member.role, staff_member.is_active)
+            )
+            result = cur.fetchone()
+            return result["staff_id"]
+
+def update_staff_member_db(con, staff_id, staff_member):
+    """Update staff member"""
+    with con:
+        with con.cursor(cursor_factory=RealDictCursor) as cur:
+            updates = []
+            values = []
+            
+            if staff_member.business_id is not None:
+                updates.append("business_id = %s")
+                values.append(staff_member.business_id)
+            if staff_member.first_name is not None:
+                updates.append("first_name = %s")
+                values.append(staff_member.first_name)
+            if staff_member.last_name is not None:
+                updates.append("last_name = %s")
+                values.append(staff_member.last_name)
+            if staff_member.email is not None:
+                updates.append("email = %s")
+                values.append(staff_member.email)
+            if staff_member.phone_number is not None:
+                updates.append("phone_number = %s")
+                values.append(staff_member.phone_number)
+            if staff_member.role is not None:
+                updates.append("role = %s")
+                values.append(staff_member.role)
+            if staff_member.is_active is not None:
+                updates.append("is_active = %s")
+                values.append(staff_member.is_active)
+            
+            if not updates:
+                raise Exception("No fields to update")
+            
+            values.append(staff_id)
+            query = f"UPDATE staff_members SET {', '.join(updates)} WHERE staff_id = %s RETURNING *;"
+            cur.execute(query, values)
+            result = cur.fetchone()
+            
+            if not result:
+                raise Exception(f"Staff member with id {staff_id} not found")
+            return result
+
+def delete_staff_member_db(con, staff_id):
+    """Delete staff member"""
+    with con:
+        with con.cursor(cursor_factory=RealDictCursor) as cur:
+            cur.execute("DELETE FROM staff_members WHERE staff_id = %s RETURNING staff_id;", (staff_id,))
+            result = cur.fetchone()
+            if not result:
+                raise Exception(f"Staff member with id {staff_id} not found")
+            return {"message": f"Staff member {staff_id} deleted successfully"}
 
 
-### THIS IS JUST INSPIRATION FOR A CREATE-OPERATION
-# def add_item(con, title, description):
-#     with con:
-#         with con.cursor(cursor_factory=RealDictCursor) as cursor:
-#             cursor.execute(
-#                 "INSERT INTO items (title, description) VALUES (%s, %s) RETURNING id;",
-#                 (title, description),
-#             )
-#             item_id = cursor.fetchone()["id"]
-#     return item_id
+#STAFF SERVICES
+
+def get_all_staff_services(con):
+    """Fetch all staff-service connections"""
+    with con:
+        with con.cursor(cursor_factory=RealDictCursor) as cur:
+            cur.execute("SELECT * FROM staff_services;")
+            return cur.fetchall()
+
+def get_staff_service_by_id(con, staff_service_id):
+    """Fetch a specific staff-service connection"""
+    with con:
+        with con.cursor(cursor_factory=RealDictCursor) as cur:
+            cur.execute("SELECT * FROM staff_services WHERE staff_service_id = %s;", (staff_service_id,))
+            staff_service = cur.fetchone()
+            if not staff_service:
+                raise Exception(f"Staff service with id {staff_service_id} not found")
+            return staff_service
+
+def add_staff_service(con, staff_service):
+    """Create new staff-service connection"""
+    with con:
+        with con.cursor(cursor_factory=RealDictCursor) as cur:
+            cur.execute(
+                """
+                INSERT INTO staff_services (staff_id, service_id)
+                VALUES (%s, %s)
+                RETURNING staff_service_id;
+                """,
+                (staff_service.staff_id, staff_service.service_id)
+            )
+            result = cur.fetchone()
+            return result["staff_service_id"]
+
+def delete_staff_service_db(con, staff_service_id):
+    """Delete staff-service connection"""
+    with con:
+        with con.cursor(cursor_factory=RealDictCursor) as cur:
+            cur.execute("DELETE FROM staff_services WHERE staff_service_id = %s RETURNING staff_service_id;", (staff_service_id,))
+            result = cur.fetchone()
+            if not result:
+                raise Exception(f"Staff service with id {staff_service_id} not found")
+            return {"message": f"Staff service {staff_service_id} deleted successfully"}
+
+
+# SPECIAL FUNCTIONS
+# Validate user credentials against database.
+#Returns user_id if email and password match, raises exception if invalid.
+
+
+def login_user_db(con, login):
+    """Login function (validate email and password)"""
+    with con:
+        with con.cursor(cursor_factory=RealDictCursor) as cursor:
+            cursor.execute(
+                "SELECT * FROM users WHERE email = %s AND password_hash = %s;",
+                (login.email, login.password_hash)
+            )
+            user = cursor.fetchone()
+            if not user:
+                raise Exception("Invalid email or password")
+            return {"message": "Login successful", "user_id": user["user_id"]}
